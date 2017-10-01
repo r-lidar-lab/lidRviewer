@@ -2,18 +2,18 @@
 
 This is a point cloud viewer for R. The first goal of this package is to be the backend to display point clouds in the `lidR` package in replacement of `rgl`.
 
-`rgl` is an awesome package but have difficulties (to do not say it can't) displaying big point clouds. This package enable to display big points up to several millions of points. So far I tried up to 20 millions and the windows was fluid.
+`rgl` is an awesome package but has some difficulties displaying large point clouds. The 'PointCloudViewer' package is able to display large point clouds consisting of several million points. So far I have tried it with over 20 million points and the display window remained fluid (smoothly pan, zoom and rotate).
 
 Advantage of `PointCloudViewer`:
 
-* handle easily more than 20 million points while `rgl` get in trouble from a tenth of that.
-* have pan zoom rotate while `rgl` only has zoom rotate.
-* is much more memory efficient. It allocate only few extra memory.
+* can easily handle more than 20 million points while `rgl` can struggle displaying a tenth of that.
+* has pan zoom rotate while `rgl` only has zoom rotate.
+* is much more memory efficient. It allocates only a small amount of additional memory.
 
 Drawbacks
 
-* blocks the R session. If the viewer windows is open, you can't make R stuff. You must close the viewer windows first (so no multiple plots).
-* enables only to display a point cloud. No other feature. This is only a big point cloud displayer not a replacement of `rgl`
+* blocks the R session. If the viewer windows is open, you can't use R for anything else. You must close the viewer windows first (so no multiple plots).
+* can only display point clouds. No other feature. This is only a large point cloud displayer so not intended as a replacement for `rgl`
 
 ## Installation
 
@@ -31,13 +31,13 @@ devtools::install_github("Jean-Romain/PointCloudViewer")
 
 ### Windows
 
-Start praying. Then install OpenGL (actually if `rgl` is installed it should be already good). Then install the [SDL library](install sdl library windows). Then try:
+Start praying... Then install OpenGL (actually if `rgl` is installed it should be already good). Then install the [SDL library](install sdl library windows). Then try:
 
 ```
 devtools::install_github("Jean-Romain/PointCloudViewer")
 ```
 
-But to be honnest I'm not expecting it to work. But who knows? In theory is could works if the SDL is properly installed.
+To be honest I'm not expecting this to work, but who knows? In theory it could work if the SDL is properly installed.
 
 ## Benchmark
 
@@ -48,5 +48,4 @@ On a core i7 with 11 million points.
 | `rgl`              | 15-20         | 1.2 GB    | no    |
 | `PointCloudViewer` | < 1           | 1.0 MB    | yes   |
 
-Time is the time to open the Windows. Alloc mem. Is the extra memory allocated by the call. Fluid means you rotate and zoom freely.
-
+'Time' is the time taken to open the Windows. 'Alloc mem' Is the extra memory allocated by the call. 'Fluid' means you can rotate and zoom freely.
