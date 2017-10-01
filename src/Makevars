@@ -1,0 +1,1 @@
+PKG_LIBS= -lGL -lGLU -lSDL -LSDmain
