@@ -27,7 +27,7 @@ plot_xyz <- function(x, y, z, col, size = 2)
     stop(paste(xtxt, "is not same length as", ztxt))
   }
 
-  if (nrow(col) < lenght(x)) {
+  if (nrow(col) < length(x)) {
     stop("Wrong colo matrix size")
   }
 
