@@ -31,7 +31,7 @@ devtools::install_github("Jean-Romain/PointCloudViewer")
 
 ### Windows
 
-Start praying. Then install OpenGL (actually if `rgl` is installed it should be already good). Then install the [SDL library](install sdl library windows). Then try:
+Start praying. Then install OpenGL (actually if `rgl` is installed it should be already good). Then install the [SDL library](https://www.google.com/search?q=install+SDL+windows&oq=install+SDL+windows&gs_l=psy-ab.3..0i71k1l4.2152.2152.0.2599.1.1.0.0.0.0.0.0..0.0.dummy_maps_web_fallback...0...1.1.64.psy-ab..1.0.0....0.pv8VzgF7f-Y). Then try:
 
 ```
 devtools::install_github("Jean-Romain/PointCloudViewer")
