@@ -43,7 +43,9 @@ void Drawer::draw()
   else if (pass == maxpass)
     return;
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  if (pass == 1)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
@@ -52,13 +54,10 @@ void Drawer::draw()
   glPointSize(size);
   glBegin(GL_POINTS);
 
-  for (int j = maxpass-pass; j < maxpass ; j++)
+  for (int i = pass-1 ; i < x.length()-maxpass ; i+=maxpass)
   {
-    for (int i = j ; i < x.length()-maxpass ; i+=maxpass)
-    {
-      glColor3ub(rgb(i,0),rgb(i,1),rgb(i,2));
-      glVertex3d(x(i)-xcenter, y(i)-ycenter, z(i)-zcenter);
-    }
+    glColor3ub(rgb(i,0),rgb(i,1),rgb(i,2));
+    glVertex3d(x(i)-xcenter, y(i)-ycenter, z(i)-zcenter);
   }
 
   glEnd();
