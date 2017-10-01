@@ -37,7 +37,7 @@ Start praying. Then install OpenGL (actually if `rgl` is installed it should be 
 devtools::install_github("Jean-Romain/PointCloudViewer")
 ```
 
-But to be honnest I'm not expecting it to work. But who knows? In theory is could works if the SDL is properly installed.
+But to be honnest I'm not expecting it to work. But who knows? In theory it could work if the SDL is properly installed.
 
 ## Benchmark
 
@@ -48,5 +48,5 @@ On a core i7 with 11 million points.
 | `rgl`              | 15-20         | 1.2 GB    | no    |
 | `PointCloudViewer` | < 1           | 1.0 MB    | yes   |
 
-Time is the time to open the Windows. Alloc mem. Is the extra memory allocated by the call. Fluid means you rotate and zoom freely.
+Time is the time to open the windows. Alloc mem. is the extra memory allocated by the call. Fluid means you can rotate and zoom freely.
 
