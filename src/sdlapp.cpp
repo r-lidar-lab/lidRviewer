@@ -34,7 +34,7 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix co
   drawer->camera->setPanSensivity(1);
   drawer->setPointSize(size);
 
-  last_time = SDL_GetTicks()-2*time_per_frame;
+  last_time = SDL_GetTicks();
 
   while (run)
   {
@@ -69,16 +69,16 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix co
       }
     }
 
+    drawer->draw();
+
     current_time = SDL_GetTicks();
     elapsed_time = current_time - last_time;
-    last_time = current_time;
-
-    drawer->draw();
 
     if (elapsed_time < time_per_frame)
     {
       //Rcout << "sleep for " << time_per_frame - (time_per_frame - elapsed_time) << "ms" << std::endl;
       SDL_Delay(time_per_frame - (time_per_frame - elapsed_time));
+      last_time = current_time;
     }
   }
 
