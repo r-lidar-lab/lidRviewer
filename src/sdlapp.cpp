@@ -4,7 +4,6 @@
 #define WW 1000
 #define WH 1000
 
-//' @export
 // [[Rcpp::export]]
 void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix col, float size = 2)
 {
