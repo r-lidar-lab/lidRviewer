@@ -31,7 +31,7 @@ devtools::install_github("Jean-Romain/PointCloudViewer")
 
 ### Windows
 
-Start praying... Then install OpenGL (actually if `rgl` is installed it should be already good). Then install the [SDL library] [SDL library](https://www.google.com/search?q=install+SDL+windows&oq=install+SDL+windows&gs_l=psy-ab.3..0i71k1l4.2152.2152.0.2599.1.1.0.0.0.0.0.0..0.0.dummy_maps_web_fallback...0...1.1.64.psy-ab..1.0.0....0.pv8VzgF7f-Y). Then try:
+Start praying... Then install OpenGL (actually if `rgl` is installed it should be already good). Then install the [SDL library] (https://www.google.com/search?q=install+SDL+library+on+windows&ie=utf-8&oe=utf-8). Then try:
 
 ```r
 devtools::install_github("Jean-Romain/PointCloudViewer")
@@ -39,12 +39,23 @@ devtools::install_github("Jean-Romain/PointCloudViewer")
 
 To be honest I'm not expecting this to work, but who knows? In theory it could work if the SDL is properly installed.
 
+## How it works
+ 
+Displaying huge point clouds in real time is a complex task. Advanced techniques often rely on Octrees to selectively display points within the camera field of view. These techniques are smart but beyond my knowledge and not really appropriate for my low memory usage requirements. Considering how R stores data, constructing an Octree would require a full copy of the point cloud. This package uses some very naive optimization to render large point clouds in pseudo-real time:
+ 
+* It relies on modern OpenGL, which by default is able to handle many points.
+* When users rotate/pan/zoom it only displays 1 million points, which allows for smooth, fluid movement of the display.
+* When the program finds a few milliseconds of free time between two events it progressively densifies the point cloud until the entire point cloud is displayed. This allows the user to rotate/pan/zoom again before the end of the rendering.
+* It uses a pointer to the R memory and does not create any copy. The memory allocated for the rendering is therefore reduced to a few megabytes independently of the point cloud size.
+ 
+So far it works well on my tests and the package can display as many points as the user wants (I stopped my tests after 35 million points [~1GB]).
+
 ## Benchmark
 
 On a core i7 with 11 million points.
 
 | Package            | Time (s)      | Alloc mem | Fluid |
-| ------------------ |:-------------:| ---------:|:-----:|
+| ------------------:|:-------------:| :--------:|:-----:|
 | `rgl`              | 15-20         | 1.2 GB    | no    |
 | `PointCloudViewer` | < 1           | 1.0 MB    | yes   |
 
