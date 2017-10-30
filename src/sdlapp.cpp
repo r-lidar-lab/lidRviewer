@@ -68,16 +68,17 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix co
       }
     }
 
-    drawer->draw();
-
     current_time = SDL_GetTicks();
     elapsed_time = current_time - last_time;
 
-    if (elapsed_time < time_per_frame)
+    if (elapsed_time > time_per_frame)
     {
-      //Rcout << "sleep for " << time_per_frame - (time_per_frame - elapsed_time) << "ms" << std::endl;
-      SDL_Delay(time_per_frame - (time_per_frame - elapsed_time));
+      drawer->draw();
       last_time = current_time;
+    }
+    else
+    {
+      SDL_Delay(time_per_frame - elapsed_time);
     }
   }
 
