@@ -9,6 +9,14 @@
 #' @useDynLib PointCloudViewer, .registration = TRUE
 #' @importFrom Rcpp evalCpp
 #' @export
+#' @examples
+#' \dontrun{
+#' x = runif(1000)
+#' y = runif(1000)
+#' z = runif(1000)
+#' c = t(col2rgb(sample(rainbow(10), 1000,replace = T)))
+#' plot_xyz(x,y,z, c)
+#' }
 plot_xyz <- function(x, y, z, col, size = 2)
 {
   xtxt = deparse(substitute(x))

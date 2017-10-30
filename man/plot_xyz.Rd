@@ -20,3 +20,12 @@ plot_xyz(x, y, z, col, size = 2)
 \description{
 Display big 3D point clouds
 }
+\examples{
+\dontrun{
+x = runif(1000)
+y = runif(1000)
+z = runif(1000)
+c = t(col2rgb(sample(rainbow(10), 1000,replace = T)))
+plot_xyz(x,y,z, c)
+}
+}
