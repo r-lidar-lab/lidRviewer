@@ -31,13 +31,17 @@ devtools::install_github("Jean-Romain/PointCloudViewer")
 
 ### Windows
 
-Start praying... Then install OpenGL (actually if `rgl` is installed it should be already good). Then install the [SDL library] (https://www.google.com/search?q=install+SDL+library+on+windows&ie=utf-8&oe=utf-8). Then try:
+I successfully installed the package on a Windows machine once. It is a litte bit painful but not as much as your everyday workflow. The following is a little bit dirty but it works (btw could we really make it working in a tidy manner on Windows? If yes do not hesitate to make a pull request).
 
-```r
-devtools::install_github("Jean-Romain/PointCloudViewer")
-```
-
-To be honest I'm not expecting this to work, but who knows? In theory it could work if the SDL is properly installed.
+1. Install a compiler and R developement tools with [Rtools.exe](https://cran.r-project.org/bin/windows/Rtools/)
+2. Download the SDL 1.2 **developpment** librairies files for Mingw [here](https://www.libsdl.org/download-1.2.php)
+    * Extract this archive
+    * Copy the folder `SDL` that belong into the folder `include` to `C:\RBuildTools\3.4\mingw_64\include\` or any other place like that depending on your computer and your R version.
+3. Download the SDL 1.2 **runtime** librairies files for 64-bit windows [here](https://www.libsdl.org/download-1.2.php)
+    * Extract the archive 
+    * Copy the file  `SDL.dll` into  `C:\RBuildTools\3.4\bin` or any other place like that depending on your computer and your R version
+4. Clone the repo, check the file `makevar.win` and update the path if requiered.
+5. Compile the package
 
 ## How it works
  
