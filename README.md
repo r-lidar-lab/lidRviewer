@@ -31,7 +31,7 @@ devtools::install_github("Jean-Romain/PointCloudViewer")
 
 ### Windows
 
-I successfully installed the package on a Windows machine once. It is a litte bit painful but not as much as your everyday workflow. The following is a little bit dirty but it works (btw could we really make it working in a tidy manner on Windows? If yes do not hesitate to make a pull request).
+I successfully installed the package on a Windows machine once. It is a litte bit painful but not as much as your everyday workflow :wink: . The following is a little bit dirty but it works (btw could we really make it working in a tidy manner on Windows? If yes do not hesitate to make a pull request).
 
 1. Install a compiler and R developement tools with [Rtools.exe](https://cran.r-project.org/bin/windows/Rtools/)
 2. Download the SDL 1.2 **developpment** librairies files for Mingw [here](https://www.libsdl.org/download-1.2.php)
