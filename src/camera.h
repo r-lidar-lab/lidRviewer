@@ -18,6 +18,7 @@ class Camera
     void setPanSensivity(double sensivity);
     void setZoomSensivity(double sensivity);
     void setDeltaXYZ(double dx, double dy, double dz);
+    void setDistance(double);
     bool changed;
 
   private:

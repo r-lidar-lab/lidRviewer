@@ -171,6 +171,12 @@ void Camera::setDeltaXYZ(double dx, double dy, double dz)
   deltaZ = dz;
 }
 
+void Camera::setDistance(double dist)
+{
+  if (dist > 0)
+    distance = dist;
+}
+
 Camera::~Camera()
 {
   SDL_FreeCursor(_hand1);

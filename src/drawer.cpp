@@ -29,6 +29,7 @@ Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix 
 
   this->camera = new Camera();
   this->camera->setDeltaXYZ((maxx+minx)/2, (maxy+miny)/2, minz);
+  this->camera->setDistance(sqrt((maxx-minx)*(maxx-minx)+(maxy-miny)*(maxy-miny)));
 }
 
 Drawer::~Drawer()
@@ -76,5 +77,7 @@ void Drawer::draw()
 
 void Drawer::setPointSize(float size)
 {
-  this->size = size;
+  if (size > 0)
+    this->size = size;
 }
+
