@@ -1,8 +1,8 @@
 #include "drawer.h"
 
 #define FPS 30
-#define WW 1000
-#define WH 1000
+#define WW 800
+#define WH 800
 
 // [[Rcpp::export]]
 void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix col, float size = 2)
@@ -19,7 +19,7 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix co
   SDL_Init(SDL_INIT_VIDEO);
 
   SDL_WM_SetCaption("Point Cloud Viewer", NULL);
-  SDL_SetVideoMode(WW, WH, 32, SDL_OPENGL | SDL_RESIZABLE);
+  SDL_SetVideoMode(width, height, 32, SDL_OPENGL | SDL_RESIZABLE);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -63,7 +63,14 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix co
         drawer->camera->OnMouseButton(event.button);
         break;
       case SDL_VIDEORESIZE:
-        SDL_SetVideoMode(event.resize.w,event.resize.h, 32, SDL_OPENGL| SDL_RESIZABLE);
+        width = event.resize.w;
+        height = event.resize.h;
+        SDL_SetVideoMode(width, height, 32, SDL_OPENGL| SDL_RESIZABLE);
+        glViewport(0, 0, width, height);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        gluPerspective(70,(double)width/height,0.1,10000);
+        drawer->camera->changed = true;
         break;
       }
     }

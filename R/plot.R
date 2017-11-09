@@ -11,9 +11,9 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' x = runif(1000)
-#' y = runif(1000)
-#' z = runif(1000)
+#' x = runif(1000, 0, 100)
+#' y = runif(1000, 0, 100)
+#' z = runif(1000, 0, 100)
 #' c = t(col2rgb(sample(rainbow(10), 1000,replace = T)))
 #' plot_xyz(x,y,z, c)
 #' }
