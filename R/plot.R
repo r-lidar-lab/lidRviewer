@@ -1,5 +1,8 @@
 #' Display big 3D point clouds
 #'
+#' Display big 3D point cloud using rgl style but is memory efficent and does no lag
+#' even for millions of points.
+#'
 #' @param x vector of x coordinates
 #' @param y vector of y coordinates
 #' @param z vector of z coordinates

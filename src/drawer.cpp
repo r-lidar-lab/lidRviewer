@@ -23,7 +23,7 @@ Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix 
   this->maxpass = ceil((double)npoints/(double)1000000);
   this->pass = 1;
 
-  Rcout << "max pass = " << maxpass << std::endl;
+  //Rcout << "max pass = " << maxpass << std::endl;
 
   this->size = 2;
 
@@ -70,7 +70,7 @@ void Drawer::draw()
   if (pass < maxpass)
     pass++;
 
-  Rcout << "draw pass = " << pass << std::endl;
+  //Rcout << "draw pass = " << pass << std::endl;
 
   return;
 }

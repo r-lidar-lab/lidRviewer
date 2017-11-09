@@ -1,8 +1,8 @@
 #include "drawer.h"
 
 #define FPS 30
-#define WW 800
-#define WH 800
+#define WW 600
+#define WH 600
 
 // [[Rcpp::export]]
 void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix col, float size = 2)

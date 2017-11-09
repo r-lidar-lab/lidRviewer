@@ -18,7 +18,8 @@ plot_xyz(x, y, z, col, size = 2)
 \item{size}{the size of the points}
 }
 \description{
-Display big 3D point clouds
+Display big 3D point cloud using rgl style but is memory efficent and does no lag
+even for millions of points.
 }
 \examples{
 \dontrun{
