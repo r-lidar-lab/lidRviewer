@@ -23,7 +23,7 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix co
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(70,(double)width/height,0.1,10000);
+  gluPerspective(70,(double)width/height,0.1,100000);
 
   glEnable(GL_DEPTH_TEST);
 
