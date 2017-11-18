@@ -11,7 +11,7 @@ using namespace Rcpp;
 class Drawer
 {
   public:
-    Drawer(NumericVector, NumericVector, NumericVector, IntegerMatrix);
+    Drawer(NumericVector, NumericVector, NumericVector, IntegerVector, IntegerVector, IntegerVector, IntegerVector);
     ~Drawer();
     Camera * camera;
      void draw();
@@ -34,7 +34,10 @@ class Drawer
     NumericVector x;
     NumericVector y;
     NumericVector z;
-    IntegerMatrix rgb;
+    IntegerVector r;
+    IntegerVector g;
+    IntegerVector b;
+    IntegerVector id;
 };
 
 #endif //DRAWER_H

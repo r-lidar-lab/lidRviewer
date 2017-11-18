@@ -1,11 +1,14 @@
 #include "drawer.h"
 
-Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix col)
+Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerVector r, IntegerVector g, IntegerVector b, IntegerVector id)
 {
   this->x = x;
   this->y = y;
   this->z = z;
-  this->rgb = col;
+  this->r = r;
+  this->g = g;
+  this->b = b;
+  this->id = id;
 
   this->npoints = x.length();
 
@@ -57,7 +60,11 @@ void Drawer::draw()
 
   for (int i = pass-1 ; i < x.length()-maxpass ; i+=maxpass)
   {
-    glColor3ub(rgb(i,0),rgb(i,1),rgb(i,2));
+    if (id(0) == 0)
+      glColor3ub(r(i), g(i), b(i));
+    else
+      glColor3ub(r(id(i)-1), g(id(i)-1), b(id(i)-1));
+
     glVertex3d(x(i)-xcenter, y(i)-ycenter, z(i)-zcenter);
   }
 

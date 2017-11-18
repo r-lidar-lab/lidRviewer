@@ -6,22 +6,25 @@
 using namespace Rcpp;
 
 // plotxyz
-void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix col, float size);
-RcppExport SEXP _PointCloudViewer_plotxyz(SEXP xSEXP, SEXP ySEXP, SEXP zSEXP, SEXP colSEXP, SEXP sizeSEXP) {
+void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r, IntegerVector g, IntegerVector b, IntegerVector id, float size);
+RcppExport SEXP _PointCloudViewer_plotxyz(SEXP xSEXP, SEXP ySEXP, SEXP zSEXP, SEXP rSEXP, SEXP gSEXP, SEXP bSEXP, SEXP idSEXP, SEXP sizeSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
     Rcpp::traits::input_parameter< NumericVector >::type z(zSEXP);
-    Rcpp::traits::input_parameter< IntegerMatrix >::type col(colSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type r(rSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type g(gSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type b(bSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type id(idSEXP);
     Rcpp::traits::input_parameter< float >::type size(sizeSEXP);
-    plotxyz(x, y, z, col, size);
+    plotxyz(x, y, z, r, g, b, id, size);
     return R_NilValue;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_PointCloudViewer_plotxyz", (DL_FUNC) &_PointCloudViewer_plotxyz, 5},
+    {"_PointCloudViewer_plotxyz", (DL_FUNC) &_PointCloudViewer_plotxyz, 8},
     {NULL, NULL, 0}
 };
 

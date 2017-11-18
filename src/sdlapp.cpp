@@ -5,7 +5,7 @@
 #define WH 600
 
 // [[Rcpp::export]]
-void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix col, float size = 2)
+void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r, IntegerVector g, IntegerVector b, IntegerVector id, float size = 2)
 {
   bool run = true;
 
@@ -27,7 +27,7 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerMatrix co
 
   glEnable(GL_DEPTH_TEST);
 
-  Drawer* drawer = new Drawer(x,y,z, col);
+  Drawer* drawer = new Drawer(x,y,z, r, g, b, id);
   drawer->camera->setRotateSensivity(0.3);
   drawer->camera->setZoomSensivity(10);
   drawer->camera->setPanSensivity(1);

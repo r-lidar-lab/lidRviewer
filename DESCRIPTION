@@ -4,7 +4,7 @@ Title: 3D point cloud viewer
 Version: 0.1.0
 Author: Jean-Romain Roussel [aut,cre,cph]
 Maintainer: Jean-Romain Roussel <jean-romain.roussel.1@ulaval.ca>
-Description: A simple point cloud viewer for R which enable to display many points. This package aims to replace rgl when the point cloud is to big to be held by rgl. 
+Description: A simple point cloud viewer for R which enable to display million of points in a fluid way and using few memory. This package aims to replace rgl when the point cloud is to big to be held by rgl. 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
