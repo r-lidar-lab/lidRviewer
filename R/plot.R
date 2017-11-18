@@ -10,7 +10,7 @@
 #' @param r integer vector of red components
 #' @param g integer vector of green components
 #' @param b integer vector of blue components
-#' @param col character vector or hexadecimal colors.
+#' @param col character vector of hexadecimal colors.
 #' @param id integer vector. Memory optimization. Instead of storing 3 vectors of integer
 #' and potentially storing duplicated entries it is possible to provide a short list of colors
 #' and refer to these color using a single set of integer used as id to the color.
@@ -46,6 +46,7 @@ plot_xyzrgb <- function(x, y, z, r, g, b, id = NULL, size = 2)
   rtxt = deparse(substitute(r))
   gtxt = deparse(substitute(g))
   btxt = deparse(substitute(b))
+  itxt = deparse(substitute(id))
 
   if (!is.vector(x)) {stop(paste(xtxt, "is not a vector"))}
   if (!is.vector(y)) {stop(paste(ytxt, "is not a vector"))}
@@ -77,11 +78,15 @@ plot_xyzrgb <- function(x, y, z, r, g, b, id = NULL, size = 2)
 
     if (min(id) <= 0)
       stop("Index out of bound. 'id' contains negative or 0 values.")
+
+    if (length(x) != length(id))
+        stop(paste(xtxt, "is not same length as", itxt))
   }
   else
   {
     id = 0
   }
 
+  message("Point cloud viewer must be closed before to run other R code")
   plotxyz(x,y,z,r,g,b,id,size)
 }

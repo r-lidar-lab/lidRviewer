@@ -18,7 +18,7 @@ plot_xyzrgb(x, y, z, r, g, b, id = NULL, size = 2)
 
 \item{z}{numeric vector of z coordinates}
 
-\item{col}{character vector or hexadecimal colors.}
+\item{col}{character vector of hexadecimal colors.}
 
 \item{id}{integer vector. Memory optimization. Instead of storing 3 vectors of integer
 and potentially storing duplicated entries it is possible to provide a short list of colors
