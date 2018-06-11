@@ -1,6 +1,6 @@
 ![Github](https://img.shields.io/badge/Github-0.1.0-green.svg) ![licence](https://img.shields.io/badge/Licence-GPL--3-blue.svg)
 
-This is a point cloud viewer for R. The first goal of this package is to be the backend to display point clouds in the `lidR` package in replacement of `rgl` (full support since `lidR v1.4.0`).
+This is a point cloud viewer for R. The first goal of this package is to be the backend to display point clouds in the `lidR` package in replacement of `rgl`. It is fully supported since `lidR v1.4.0` but one may consider that this package is under development (it works good enough to me but still have bugs).
 
 `rgl` is an awesome package but has some difficulties displaying large point clouds. The 'PointCloudViewer' package is able to display large point clouds consisting of several million points. So far I have tried it with over 30 million points and the display window remained fluid (smoothly pan, zoom and rotate).
 
@@ -31,7 +31,7 @@ devtools::install_github("Jean-Romain/PointCloudViewer")
 
 ### Windows
 
-I successfully installed the package on a Windows machine once. It is a litte bit painful but not as much as your everyday workflow :wink:. The following is a little bit dirty but it works (btw if it exists a way to make that in tidy manner on Windows please tell me).
+I successfully installed the package on a Windows machine once. As always things are much harder on Windows :wink:. The following is a little bit dirty but it works. By the way if it exists a way to make that in tidy manner on Windows please tell me (for example writing a `configure` file).
 
 1. Install a compiler and R developement tools with [Rtools.exe](https://cran.r-project.org/bin/windows/Rtools/)
 2. Download the SDL 1.2 **developpment** librairies files for Mingw [here](https://www.libsdl.org/download-1.2.php)
