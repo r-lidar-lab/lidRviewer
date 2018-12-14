@@ -75,7 +75,7 @@ Camera::Camera()
   deltaZ = 0;
   distance = 300;
   changed = true;
-  panSensivity = 1;
+  panSensivity = 10;
   rotateSensivity = 0.3;
   zoomSensivity = 30;
 }
@@ -96,6 +96,9 @@ void Camera::OnMouseMotion(const SDL_MouseMotionEvent & event)
   }
   else if (holdright) // Pan
   {
+    deltaX += event.xrel*panSensivity;
+    deltaY -= event.yrel*panSensivity;
+    changed = true;
   }
 }
 
@@ -186,6 +189,7 @@ Camera::~Camera()
 
 void Camera::look()
 {
+  glTranslated(deltaX, deltaY, 0.0);
   gluLookAt(distance,0,0,0,0,0,0,0,1);
   glRotated(angleY,0,1,0);
   glRotated(angleZ,0,0,1);

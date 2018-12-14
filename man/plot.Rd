@@ -4,7 +4,6 @@
 \alias{plot_xyzcol}
 \alias{plot}
 \alias{plot_xyzrgb}
-\alias{plot}
 \title{Display big 3D point clouds}
 \usage{
 plot_xyzcol(x, y, z, col, id = NULL, size = 2)
