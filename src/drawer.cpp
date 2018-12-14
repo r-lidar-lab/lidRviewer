@@ -23,11 +23,8 @@ Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerVector 
   ycenter = (maxy+miny)/2;
   zcenter = (maxz+minz)/2;
 
-  this->maxpass = ceil((double)npoints/(double)1000000);
+  this->maxpass = ceil((double)npoints/(double)2000000);
   this->pass = 1;
-
-  //Rcout << "max pass = " << maxpass << std::endl;
-
   this->size = 2;
 
   this->camera = new Camera();
@@ -43,7 +40,7 @@ void Drawer::draw()
 {
   if (camera->changed)
     pass = 1;
-  else if (pass == maxpass)
+  if (pass > maxpass)
     return;
 
   if (pass == 1)
@@ -57,7 +54,7 @@ void Drawer::draw()
   glPointSize(size);
   glBegin(GL_POINTS);
 
-  for (int i = pass-1 ; i < x.length()-maxpass ; i+=maxpass)
+  for (int i = pass-1 ; i < x.length()-maxpass ; i += maxpass)
   {
     if (id(0) == 0)
       glColor3ub(r(i), g(i), b(i));
@@ -73,11 +70,7 @@ void Drawer::draw()
 
   camera->changed = false;
 
-  if (pass < maxpass)
-    pass++;
-
-  //Rcout << "draw pass = " << pass << std::endl;
-
+  pass++;
   return;
 }
 
