@@ -133,11 +133,15 @@ void Camera::OnMouseButton(const SDL_MouseButtonEvent & event)
   else if ((event.button == SDL_BUTTON_WHEELUP) && (event.type == SDL_MOUSEBUTTONDOWN))
   {
     distance -= zoomSensivity;
+    panSensivity = distance*0.001;
+    zoomSensivity = distance*0.05;
     changed = true;
   }
   else if ((event.button == SDL_BUTTON_WHEELDOWN) && (event.type == SDL_MOUSEBUTTONDOWN))
   {
     distance += zoomSensivity;
+    panSensivity = distance*0.001;
+    zoomSensivity = distance*0.05;
     changed = true;
   }
 }

@@ -22,13 +22,16 @@ Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerVector 
   xcenter = (maxx+minx)/2;
   ycenter = (maxy+miny)/2;
   zcenter = (maxz+minz)/2;
+  double distance = sqrt((maxx-minx)*(maxx-minx)+(maxy-miny)*(maxy-miny));
 
   this->maxpass = ceil((double)npoints/(double)2000000);
   this->pass = 1;
   this->size = 2;
 
   this->camera = new Camera();
-  this->camera->setDistance(sqrt((maxx-minx)*(maxx-minx)+(maxy-miny)*(maxy-miny)));
+  this->camera->setDistance(distance);
+  this->camera->setPanSensivity(distance*0.001);
+  this->camera->setZoomSensivity(distance*0.05);
 }
 
 Drawer::~Drawer()
