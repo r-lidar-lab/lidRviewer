@@ -1,0 +1,23 @@
+#!/bin/sh
+
+Rscript -e "dir.temp = tempdir()
+dir.dll = R.home('bin')
+dir.include = paste0(R.home('include'), '/SDL')
+
+dir.create(dir.include)
+
+devel = paste0(dir.temp, '/sdldevel.tar.gz')
+runtime = paste0(dir.temp, '/sdlruntime.zip')
+pcv = paste0(dir.temp, 'PointCloudViewver.zip')
+
+download.file('https://www.libsdl.org/release/SDL-devel-1.2.15-mingw32.tar.gz', devel)
+download.file('https://www.libsdl.org/release/SDL-1.2.15-win32-x64.zip', runtime)
+
+utils::untar(devel, exdir = dir.temp)
+utils::unzip(runtime, exdir = dir.temp)
+
+sdl.include = paste0(dir.temp, '/SDL-1.2.15/include/SDL/')
+sdl.dll =   paste0(dir.temp, '/SDL.dll')
+
+status = file.copy(list.files(sdl.include, full.names = T), dir.include, recursive = TRUE)
+status = file.copy(sdl.dll, dir.dll)"
