@@ -21,3 +21,5 @@ sdl.dll =   paste0(dir.temp, '/SDL.dll')
 
 status = file.copy(list.files(sdl.include, full.names = T), dir.include, recursive = TRUE)
 status = file.copy(sdl.dll, dir.dll)"
+
+exit 0
