@@ -31,7 +31,7 @@
 #' }
 plot_xyzcol <- function(x, y, z, col, id = NULL, size = 2)
 {
-  col = col2rgb(col)
+  col = grDevices::col2rgb(col)
   plot_xyzrgb(x, y, z, col[1,], col[2,], col[3,], id, size)
 }
 
