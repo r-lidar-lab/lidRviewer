@@ -82,8 +82,8 @@ install.sdl <- function() {
   s3 <- .install.dll("i386")
 
   if (s1 + s2 + s3 < 3)
-    stop("Something when wrong during the installation.", call. = FALSE)
+    stop("Something went wrong during the installation.", call. = FALSE)
   else
-    cat("Installation of the SDL library: done.")
+    cat("Installation of the SDL library: ok")
 }
 
