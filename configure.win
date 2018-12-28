@@ -1,6 +1,6 @@
 #!/bin/sh
 
-Rscript -e "dir.temp = tempdir()
+OUT=`Rscript -e "dir.temp = tempdir()
 dir.dll = R.home('bin')
 dir.include = paste0(R.home('include'), '/SDL')
 
@@ -20,6 +20,6 @@ sdl.include = paste0(dir.temp, '/SDL-1.2.15/include/SDL/')
 sdl.dll =   paste0(dir.temp, '/SDL.dll')
 
 status = file.copy(list.files(sdl.include, full.names = T), dir.include, recursive = TRUE)
-status = file.copy(sdl.dll, dir.dll)"
+status = file.copy(sdl.dll, dir.dll)"`
 
 exit 0
