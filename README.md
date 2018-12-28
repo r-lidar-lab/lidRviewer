@@ -41,31 +41,40 @@ I successfully installed the package on Windows machines. As always things are m
 
 ```r
 dir.temp    <- tempdir()
-dir.dll     <- R.home('bin')
+dir.dll.64  <- R.home('bin')
+dir.dll.32  <- normalizePath(paste0(dir.dll.64, "/../i386/"))
 dir.include <- paste0(R.home('include'), '/SDL')
-devel       <- paste0(dir.temp, '/sdldevel.tar.gz')
-runtime     <- paste0(dir.temp, '/sdlruntime.zip')
 
 if (!dir.exists(dir.include)) dir.create(dir.include)
 
+devel   <- paste0(dir.temp, '/sdldevel.tar.gz')
+dll.64  <- paste0(dir.temp, '/sdldllx64.zip')
+dll.32  <- paste0(dir.temp, '/sdldllx32.zip')
+
 download.file('https://www.libsdl.org/release/SDL-devel-1.2.15-mingw32.tar.gz', devel)
-download.file('https://www.libsdl.org/release/SDL-1.2.15-win32-x64.zip', runtime)
+download.file('https://www.libsdl.org/release/SDL-1.2.15-win32-x64.zip', dll.64)
+download.file('https://www.libsdl.org/release/SDL-1.2.15-win32.zip', dll.32)
 
 utils::untar(devel, exdir = dir.temp) 
-utils::unzip(runtime, exdir = dir.temp)
+utils::unzip(dll.64, exdir = dir.temp)
 
 sdl.include <- paste0(dir.temp, '/SDL-1.2.15/include/SDL/')
 sdl.dll     <- paste0(dir.temp, '/SDL.dll')
 sdl.include <- list.files(sdl.include, full.names = T)
 
 file.copy(sdl.include, dir.include, recursive = TRUE)
-file.copy(sdl.dll, dir.dll, recursive = TRUE)
+file.copy(sdl.dll, dir.dll.64, recursive = TRUE)
+
+if (dir.exists(dir.dll.32)) {
+  utils::unzip(dll.32, exdir = dir.temp)
+  file.copy(sdl.dll, dir.dll.32, recursive = TRUE)
+}
 ```
 
 3. Install `devtools` and run the following line (administrator mode does not matter anymore):
 
 ```r
-devtools::install_github("Jean-Romain/PointCloudViewer", INSTALL_opts=c("--no-multiarch"))
+devtools::install_github("Jean-Romain/PointCloudViewer")
 ```
 
 ## Usage
