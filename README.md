@@ -31,11 +31,11 @@ devtools::install_github("Jean-Romain/PointCloudViewer")
 
 ### Windows
 
-> Section updated on December 27 2018
+*Section updated on December 27 2018*
 
-I successfully installed the package on a Windows machine twice. As always things are much harder on Windows :wink:. I wrote a semi-automatic installation script. 
+I successfully installed the package on Windows machines. As always things are much harder on Windows :wink:. I wrote a semi-automatic installation script that build the package (for 64 bits arch only).
 
-1. Install a compiler. Install [Rtools.exe](https://cran.r-project.org/bin/windows/Rtools/).
+1. Make sure you have a C++ compiler. On Windows install [Rtools.exe](https://cran.r-project.org/bin/windows/Rtools/).
 
 2. Run the following script by openning R (or Rstudio) **as administrator**. This script download and install the SDL along with R itself and R belongs on a folder where only an adminitrator can write.
 
@@ -43,12 +43,10 @@ I successfully installed the package on a Windows machine twice. As always thing
 dir.temp    <- tempdir()
 dir.dll     <- R.home('bin')
 dir.include <- paste0(R.home('include'), '/SDL')
+devel       <- paste0(dir.temp, '/sdldevel.tar.gz')
+runtime     <- paste0(dir.temp, '/sdlruntime.zip')
 
-if (!dir.exists(dir.include))
-  dir.create(dir.include)
-
-devel   <- paste0(dir.temp, '/sdldevel.tar.gz')
-runtime <- paste0(dir.temp, '/sdlruntime.zip')
+if (!dir.exists(dir.include)) dir.create(dir.include)
 
 download.file('https://www.libsdl.org/release/SDL-devel-1.2.15-mingw32.tar.gz', devel)
 download.file('https://www.libsdl.org/release/SDL-1.2.15-win32-x64.zip', runtime)
@@ -58,21 +56,16 @@ utils::unzip(runtime, exdir = dir.temp)
 
 sdl.include <- paste0(dir.temp, '/SDL-1.2.15/include/SDL/')
 sdl.dll     <- paste0(dir.temp, '/SDL.dll')
+sdl.include <- list.files(sdl.include, full.names = T)
 
-file.copy(list.files(sdl.include, full.names = T), dir.include, recursive = TRUE)
-file.copy(sdl.dll, dir.dll)
+file.copy(sdl.include, dir.include, recursive = TRUE)
+file.copy(sdl.dll, dir.dll, recursive = TRUE)
 ```
 
-3. Install `devtools` and run the following line (in administrator mode or not):
+3. Install `devtools` and run the following line (administrator mode does not matter anymore):
 
 ```r
-devtools::install_github("Jean-Romain/PointCloudViewer")
-```
-
-*Note for developpers only - for an unknown reason if I include the script into a `configure.win` file for a full automatic installation on Windows I get the following error. Any help would be appreciated.*
-```
-Error : this package has a non-empty 'configure.win' file, so building only the main architecture
-* removing 'C:/Users/JR/Documents/R/win-library/3.5/PointCloudViewer'
+devtools::install_github("Jean-Romain/PointCloudViewer", INSTALL_opts=c("--no-multiarch"))
 ```
 
 ## Usage
