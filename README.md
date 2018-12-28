@@ -33,7 +33,9 @@ devtools::install_github("Jean-Romain/PointCloudViewer")
 
 > Section updated on December 27 2018
 
-I successfully installed the package on a Windows machine twice. As always things are much harder on Windows :wink:. I wrote a semi-automatic installation script. First run the following script by openning R (or Rstudio) **as administrator**. This script dowmload and install the SDL along with R itself and R belongs on a folder where only an adminitrator can write.
+I successfully installed the package on a Windows machine twice. As always things are much harder on Windows :wink:. I wrote a semi-automatic installation script. 
+
+First run the following script by openning R (or Rstudio) **as administrator**. This script download and install the SDL along with R itself and R belongs on a folder where only an adminitrator can write.
 
 ```r
 dir.temp    <- tempdir()
@@ -63,6 +65,12 @@ Then (in administrator mode or not):
 
 ```r
 devtools::install_github("Jean-Romain/PointCloudViewer")
+```
+
+*Note for developpers only - for an unknown reason if I include the script into a `configure.win` file for a full automatic installation on Windows I get the following error. Any help would be appreciated.*
+```
+Error : this package has a non-empty 'configure.win' file, so building only the main architecture
+* removing 'C:/Users/JR/Documents/R/win-library/3.5/PointCloudViewer'
 ```
 
 ## How it works
