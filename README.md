@@ -35,7 +35,9 @@ devtools::install_github("Jean-Romain/PointCloudViewer")
 
 I successfully installed the package on a Windows machine twice. As always things are much harder on Windows :wink:. I wrote a semi-automatic installation script. 
 
-First run the following script by openning R (or Rstudio) **as administrator**. This script download and install the SDL along with R itself and R belongs on a folder where only an adminitrator can write.
+1. Install a compiler. Install [Rtools.exe](https://cran.r-project.org/bin/windows/Rtools/).
+
+2. Run the following script by openning R (or Rstudio) **as administrator**. This script download and install the SDL along with R itself and R belongs on a folder where only an adminitrator can write.
 
 ```r
 dir.temp    <- tempdir()
@@ -61,7 +63,7 @@ file.copy(list.files(sdl.include, full.names = T), dir.include, recursive = TRUE
 file.copy(sdl.dll, dir.dll)
 ```
 
-Then (in administrator mode or not):
+3. Install `devtools` and run the following line (in administrator mode or not):
 
 ```r
 devtools::install_github("Jean-Romain/PointCloudViewer")
