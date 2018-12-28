@@ -31,17 +31,39 @@ devtools::install_github("Jean-Romain/PointCloudViewer")
 
 ### Windows
 
-I successfully installed the package on a Windows machine once. As always things are much harder on Windows :wink:. The following is a little bit dirty but it works. By the way if it exists a way to make that in tidy manner on Windows please tell me (for example writing a `configure` file).
+> Section updated on December 27 2018
 
-1. Install a compiler and R developement tools with [Rtools.exe](https://cran.r-project.org/bin/windows/Rtools/)
-2. Download the SDL 1.2 **developpment** librairies files for Mingw [here](https://www.libsdl.org/download-1.2.php)
-    * Extract this archive
-    * Copy the folder `SDL` that belong into the folder `include` to `C:\RBuildTools\3.4\mingw_64\include\` or any other place like that depending on your computer and your R version.
-3. Download the SDL 1.2 **runtime** librairies files for 64-bit windows [here](https://www.libsdl.org/download-1.2.php)
-    * Extract the archive 
-    * Copy the file  `SDL.dll` into  `C:\RBuildTools\3.4\bin` or any other place like that depending on your computer and your R version
-4. Clone the repo, check the file `makevar.win` and update the path if requiered.
-5. Compile the package
+I successfully installed the package on a Windows machine twice. As always things are much harder on Windows :wink:. I wrote a semi-automatic installation script. First run the following script by openning R (or Rstudio) **as administrator**. This script dowmload and install the SDL along with R itself and R belongs on a folder where only an adminitrator can write.
+
+```r
+dir.temp    <- tempdir()
+dir.dll     <- R.home('bin')
+dir.include <- paste0(R.home('include'), '/SDL')
+
+if (!dir.exists(dir.include))
+  dir.create(dir.include)
+
+devel   <- paste0(dir.temp, '/sdldevel.tar.gz')
+runtime <- paste0(dir.temp, '/sdlruntime.zip')
+
+download.file('https://www.libsdl.org/release/SDL-devel-1.2.15-mingw32.tar.gz', devel)
+download.file('https://www.libsdl.org/release/SDL-1.2.15-win32-x64.zip', runtime)
+
+utils::untar(devel, exdir = dir.temp) 
+utils::unzip(runtime, exdir = dir.temp)
+
+sdl.include <- paste0(dir.temp, '/SDL-1.2.15/include/SDL/')
+sdl.dll     <- paste0(dir.temp, '/SDL.dll')
+
+file.copy(list.files(sdl.include, full.names = T), dir.include, recursive = TRUE)
+file.copy(sdl.dll, dir.dll)
+```
+
+Then (in administrator mode or not):
+
+```r
+devtools::install_github("Jean-Romain/PointCloudViewer")
+```
 
 ## How it works
  
