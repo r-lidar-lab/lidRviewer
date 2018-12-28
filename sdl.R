@@ -12,7 +12,7 @@
   dll  <- paste0(temp, '/SDL.dll')
 
   if (!dir.exists(bin)) {
-    cat(paste0("  SDL dll installation skipped for arch", arch, "\n"))
+    cat(paste0(" - SDL dll installation skipped\n"))
     return(TRUE)
   }
 
@@ -62,7 +62,7 @@
   status   <- file.copy(includes, inc, recursive = TRUE)
 
   if (!all(status)) {
-    cat(" - Error: headers where not copied correctly.\n")
+    cat(" - Error: headers were not copied correctly\n")
     return(FALSE)
   } else {
     cat(" - SDL headers installed\n")
@@ -84,6 +84,6 @@ install.sdl <- function() {
   if (s1 + s2 + s3 < 3)
     stop("Something when wrong during the installation.", call. = FALSE)
   else
-    cat("Installation of the SDL library: done")
+    cat("Installation of the SDL library: done.")
 }
 
