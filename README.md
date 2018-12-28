@@ -33,7 +33,7 @@ devtools::install_github("Jean-Romain/PointCloudViewer")
 
 *Section updated on December 27 2018*
 
-I successfully installed the package on Windows machines. As always things are much harder on Windows :wink:. I wrote a semi-automatic installation script that build the package (for 64 bits arch only).
+I successfully installed the package on Windows machines. As always things are much harder on Windows :wink:. I wrote a semi-automatic installation script that build the package.
 
 1. Make sure you have a C++ compiler. On Windows install [Rtools.exe](https://cran.r-project.org/bin/windows/Rtools/).
 
