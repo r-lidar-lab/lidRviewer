@@ -57,7 +57,8 @@
 
   cat(" - SDL headers uncompressed\n")
 
-  includes <- paste0(temp, '/SDL-1.2.15/include/')
+  includes <- paste0(temp, '/SDL-1.2.15/include/SDL/')
+  includes <- list.files(includes, full.names = T)
   status   <- file.copy(includes, inc, recursive = TRUE)
 
   if (!all(status)) {
