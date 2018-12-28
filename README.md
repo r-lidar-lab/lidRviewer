@@ -75,6 +75,15 @@ Error : this package has a non-empty 'configure.win' file, so building only the 
 * removing 'C:/Users/JR/Documents/R/win-library/3.5/PointCloudViewer'
 ```
 
+## Usage
+
+```r
+library(lidR)
+LASfile <- system.file("extdata", "Megaplot.laz", package="lidR")
+las <- readLAS(LASfile)
+plot(las, backend = "pcv")
+```
+
 ## How it works
  
 Displaying huge point clouds in real time is a complex task. Advanced techniques often rely on Octrees to selectively display points within the camera field of view. These techniques are smart but not really appropriate for my low memory usage requirements. Considering how R stores data, constructing an Octree would require a full copy of the point cloud. This package uses some very naive optimization to render large point clouds in pseudo-real time:
