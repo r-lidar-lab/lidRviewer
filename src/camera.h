@@ -35,6 +35,7 @@ class Camera
     bool holdright;
     SDL_Cursor * _hand1;
     SDL_Cursor * _hand2;
+    SDL_Cursor * _move;
 };
 
 #endif //CAMERA_H

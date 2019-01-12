@@ -62,8 +62,37 @@ Camera::Camera()
     "0,0"
   };
 
+  const char *move[] =
+  {
+    /* width height num_colors chars_per_pixel */
+    " 16 16 1 ",
+    /* colors */
+    "X c #000000",
+    ". c #ffffff",
+    "  c None",
+    /* pixels */
+    "       XX       ",
+    "      X..X      ",
+    "     X....X     ",
+    "    X......X    ",
+    "   X XX..XX X   ",
+    "  X.X X..X X.X  ",
+    " X..XXX..XXX..X ",
+    "X..............X",
+    "X..............X",
+    " X..XXX..XXX..X ",
+    "  X.X X..X X.X  ",
+    "   X XX..XX X   ",
+    "    X......X    ",
+    "     X....X     ",
+    "      X..X      ",
+    "       XX       ",
+    "0,0"
+    };
+
   _hand1 = cursorFromXPM(hand1);
   _hand2 = cursorFromXPM(hand2);
+  _move  = cursorFromXPM(move);
 
   SDL_SetCursor(_hand1);
   holdleft = false;
@@ -127,7 +156,7 @@ void Camera::OnMouseButton(const SDL_MouseButtonEvent & event)
     else if ((!holdright)&&(event.type == SDL_MOUSEBUTTONDOWN))
     {
       holdright = true;
-      SDL_SetCursor(_hand2);
+      SDL_SetCursor(_move);
     }
   }
   else if ((event.button == SDL_BUTTON_WHEELUP) && (event.type == SDL_MOUSEBUTTONDOWN))
