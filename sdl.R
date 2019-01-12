@@ -87,3 +87,7 @@ install.sdl <- function() {
     cat("Installation of the SDL library: done")
 }
 
+install.sdl()
+
+rm(install.sdl, .install.headers, .install.dll, .R.home.bin)
+
