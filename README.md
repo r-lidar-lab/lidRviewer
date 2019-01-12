@@ -6,18 +6,18 @@ This is a point cloud viewer for R. The first goal of this package is to be an a
 
 Advantage of `PointCloudViewer`:
 
-* can easily handle more than 20 million points while `rgl` can struggle displaying a tenth of that.
-* has pan zoom rotate while `rgl` only has zoom rotate.
-* is much more memory efficient. It allocates only a small amount of additional memory.
+* Can easily handle more than 20 million points while `rgl` can struggle displaying a tenth of that.
+* Has pan/zoom/rotate while `rgl` only has zoom/rotate.
+* Is much more memory efficient. It allocates only a small amount of additional memory.
 
 Drawbacks
 
-* blocks the R session. If the viewer windows is open, you can't use R for anything else. You must close the viewer windows first (so no multiple plots).
-* can only display point clouds. No other feature. This is only a large point cloud displayer so not intended as a replacement for `rgl`
+* Blocks the R session. If the viewer windows is open, you can't use R for anything else. You must close the viewer windows first.
+* Can only display point clouds. No other feature. This is only a point cloud displayer so not intended as a replacement for `rgl`
 
 ## Installation
 
-`PointCloudViewer` is based on OpenGL and the SDL. You must install both first.
+PointCloudViewer is based on the [OpenGL](https://www.opengl.org/) and the [SDL](https://www.libsdl.org/) librairies. You must install both first.
 
 ### GNU/Linux
 
@@ -31,17 +31,11 @@ devtools::install_github("Jean-Romain/PointCloudViewer")
 
 ### Windows
 
-*Section updated on December 27 2018*
+We successfully installed the package on Windows machines. As always things are much harder on Windows but we wrote an automatic installation script that install the SDL and build the package.
 
-We successfully installed the package on Windows machines. As always things are much harder on Windows but I wrote an automatic installation script that install the SDL and build the package.
+1. Make sure you have a C++ compiler. On Windows you must install [Rtools.exe](https://cran.r-project.org/bin/windows/Rtools/). You also need to install the `devtools` package to build this package.
 
-1. Make sure you have a C++ compiler. On Windows you must install [Rtools.exe](https://cran.r-project.org/bin/windows/Rtools/). You also need to install the `devtools` package to build the package.
-
-```r
-install.packages("devtools")
-```
-
-2. Run the following script by openning R (or Rstudio) **as administrator**. This script downloads the SDL library and installs it along with R (R belongs in a folder where only an adminitrator can write). Once it is done it installs the `PointCloudViewer` package with `devtools`.
+2. Run the following script by openning R (or Rstudio) **as administrator**. This script downloads the SDL library and installs it along with R (R belongs in a folder where only an adminitrator can write). Once it is done it installs the PointCloudViewer package with `devtools`.
 
 ```r
 source("https://raw.githubusercontent.com/Jean-Romain/PointCloudViewer/master/sdl.R")
