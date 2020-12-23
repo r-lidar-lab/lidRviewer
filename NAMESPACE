@@ -3,4 +3,4 @@
 export(plot_xyzcol)
 export(plot_xyzrgb)
 importFrom(Rcpp,evalCpp)
-useDynLib(PointCloudViewer, .registration = TRUE)
+useDynLib(lidRviewer, .registration = TRUE)

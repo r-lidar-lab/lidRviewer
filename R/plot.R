@@ -1,8 +1,8 @@
 #' Display big 3D point clouds
 #'
-#' Display big 3D point clouds using rgl style. This function does no lag and can diplay
+#' Display big 3D point clouds using rgl style. This function does no lag and can display
 #' almost instantly millions of points. It is optimized to used the lowest possible memory
-#' and is capable of diplaying gigabytes of points allocating only few megabyte of memory
+#' and is capable of displaying gigabytes of points allocating only few megabyte of memory
 #'
 #' @param x numeric vector of x coordinates
 #' @param y numeric vector of y coordinates
@@ -17,7 +17,7 @@
 #' @param size the size of the points
 #' @aliases plot
 #' @rdname plot
-#' @useDynLib PointCloudViewer, .registration = TRUE
+#' @useDynLib lidRviewer, .registration = TRUE
 #' @importFrom Rcpp evalCpp
 #' @export
 #' @examples
@@ -26,7 +26,7 @@
 #' y = runif(1000, 0, 100)
 #' z = runif(1000, 0, 100)
 #' col = rainbow(10)
-#' id = sample(1:10, 10000, replace = TRUE)
+#' id = sample(1:10, 1000, replace = TRUE)
 #' plot_xyzcol(x, y, z, col, id)
 #' }
 plot_xyzcol <- function(x, y, z, col, id = NULL, size = 2)

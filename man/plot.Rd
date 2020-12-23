@@ -32,9 +32,9 @@ and refer to these color using a single set of integer used as id to the color.}
 \item{b}{integer vector of blue components}
 }
 \description{
-Display big 3D point clouds using rgl style. This function does no lag and can diplay
+Display big 3D point clouds using rgl style. This function does no lag and can display
 almost instantly millions of points. It is optimized to used the lowest possible memory
-and is capable of diplaying gigabytes of points allocating only few megabyte of memory
+and is capable of displaying gigabytes of points allocating only few megabyte of memory
 }
 \examples{
 \dontrun{
@@ -42,7 +42,7 @@ x = runif(1000, 0, 100)
 y = runif(1000, 0, 100)
 z = runif(1000, 0, 100)
 col = rainbow(10)
-id = sample(1:10, 10000, replace = TRUE)
+id = sample(1:10, 1000, replace = TRUE)
 plot_xyzcol(x, y, z, col, id)
 }
 }

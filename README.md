@@ -41,7 +41,7 @@ We successfully installed the package on Windows machines. As always things are 
 source("https://raw.githubusercontent.com/Jean-Romain/lidRviewer/master/sdl.R")
 ```
 
-3. Once it is done, install the PointCloudViewer package with `devtools` as usual:
+3. Once it is done, install the lidRviewer package with `devtools` as usual:
 
 ```r
 devtools::install_github("Jean-Romain/lidRviewer")
