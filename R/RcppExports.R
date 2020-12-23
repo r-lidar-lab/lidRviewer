@@ -2,6 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 plotxyz <- function(x, y, z, r, g, b, id, size = 2) {
-    invisible(.Call(`_PointCloudViewer_plotxyz`, x, y, z, r, g, b, id, size))
+    invisible(.Call(`_lidRviewer_plotxyz`, x, y, z, r, g, b, id, size))
 }
 

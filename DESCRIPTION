@@ -1,11 +1,13 @@
-Package: PointCloudViewer
+Package: lidRviewer
 Type: Package
-Title: 3D point cloud viewer
+Title: 3D point cloud viewer for lidR
 Version: 0.2.0
 Date: 2018-12-28
 Author: Jean-Romain Roussel [aut,cre,cph]
 Maintainer: Jean-Romain Roussel <jean-romain.roussel.1@ulaval.ca>
-Description: A simple point cloud viewer for R which enable to display million of points in a fluid way and using few memory. This package aims to replace rgl when the point cloud is to big to be held by rgl. 
+Description: A simple point cloud viewer for R which enable to display million of 
+  points in a fluid way and using few memory. This package aims to replace rgl 
+  in lidR when the point cloud is to big to be held by rgl. 
 Depends: R (>= 3.1.0)
 Imports: Rcpp,grDevices
 License: GPL-3

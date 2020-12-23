@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // plotxyz
 void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r, IntegerVector g, IntegerVector b, IntegerVector id, float size);
-RcppExport SEXP _PointCloudViewer_plotxyz(SEXP xSEXP, SEXP ySEXP, SEXP zSEXP, SEXP rSEXP, SEXP gSEXP, SEXP bSEXP, SEXP idSEXP, SEXP sizeSEXP) {
+RcppExport SEXP _lidRviewer_plotxyz(SEXP xSEXP, SEXP ySEXP, SEXP zSEXP, SEXP rSEXP, SEXP gSEXP, SEXP bSEXP, SEXP idSEXP, SEXP sizeSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
@@ -24,11 +24,11 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_PointCloudViewer_plotxyz", (DL_FUNC) &_PointCloudViewer_plotxyz, 8},
+    {"_lidRviewer_plotxyz", (DL_FUNC) &_lidRviewer_plotxyz, 8},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_PointCloudViewer(DllInfo *dll) {
+RcppExport void R_init_lidRviewer(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
