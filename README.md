@@ -38,13 +38,13 @@ We successfully installed the package on Windows machines. As always things are 
 2. Run the following script by openning R (or Rstudio) **as administrator**. This script downloads the SDL library and installs it along with R (R belongs in a folder where only an adminitrator can write).
 
 ```r
-source("https://raw.githubusercontent.com/Jean-Romain/PointCloudViewer/master/sdl.R")
+source("https://raw.githubusercontent.com/Jean-Romain/lidRviewer/master/sdl.R")
 ```
 
 3. Once it is done, install the PointCloudViewer package with `devtools` as usual:
 
 ```r
-devtools::install_github("Jean-Romain/PointCloudViewer")
+devtools::install_github("Jean-Romain/lidRviewer")
 ```
 
 ## Usage
