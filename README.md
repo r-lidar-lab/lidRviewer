@@ -2,7 +2,7 @@
 
 This is a point cloud viewer for R. The first goal of this package is to be an alternative backend to display point clouds in the [lidR](https://github.com/Jean-Romain/lidR) package in replacement of `rgl`. It is fully supported but one may consider that this package is under development (it works good enough to me but still have bugs).
 
-`rgl` is an awesome package but has some difficulties displaying large point clouds. The 'PointCloudViewer' package is able to display large point clouds consisting of several million points. So far I have tried it with over 30 million points and the display window remained fluid (smoothly pan, zoom and rotate).
+`rgl` is an awesome package but has some difficulties displaying large point clouds. The `lidRviewer` package is able to display large point clouds consisting of several million points. So far I have tried it with over 30 million points and the display window remained fluid (smoothly pan, zoom and rotate).
 
 Advantage of `lidRviewer`:
 
