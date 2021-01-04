@@ -77,6 +77,6 @@ On a core i7 with 11 million points.
 | Package            | Time (s)      | Alloc mem | Fluid |
 | ------------------:|:-------------:| :--------:|:-----:|
 | `rgl`              | 15-20         | 1.2 GB    | no    |
-| `PointCloudViewer` | < 1           | 1.0 MB    | yes   |
+| `lidRviewer`       | < 1           | 1.0 MB    | yes   |
 
 'Time' is the time taken to open the Windows. 'Alloc mem' is the extra memory allocated by the call. 'Fluid' means you can rotate and zoom freely.
