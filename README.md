@@ -26,7 +26,7 @@ sudo apt-get install libsdl-dev freeglut3-dev
 ```
 
 ```r
-devtools::install_github("Jean-Romain/PointCloudViewer")
+devtools::install_github("Jean-Romain/lidRviewer")
 ```
 
 ### Windows
