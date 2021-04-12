@@ -7,8 +7,7 @@ This is a point cloud viewer for R. The first goal of this package is to be an a
 Advantage of `lidRviewer`:
 
 * Can easily handle more than 20 million points while `rgl` can struggle displaying a tenth of that.
-* Has pan/zoom/rotate while `rgl` only has zoom/rotate.
-* Is much more memory efficient. It allocates only a small amount of additional memory.
+* Is much more memory efficient. It allocates only a small amount of additional memory while `rgl` may require gigabytes of memory.
 
 Drawbacks
 
@@ -31,9 +30,9 @@ devtools::install_github("Jean-Romain/lidRviewer")
 
 ### Windows
 
-We successfully installed the package on Windows machines. As always things are much harder on Windows but we wrote an automatic installation script that install the SDL and build the package.
+We successfully installed the package on Windows machines. install sdl MACAs always things are much harder on Windows but we wrote an automatic installation script that install the SDL and build the package.
 
-1. Make sure you have a C++ compiler. On Windows you must install [Rtools.exe](https://cran.r-project.org/bin/windows/Rtools/). You also need to install the `devtools` package to build this package.
+1. Make sure you have a C++ compiler. On Windows you must install [Rtools.exe](https://cran.r-project.org/bin/windows/Rtools/). You also need to install the `remotes` package to build this package.
 
 2. Run the following script by openning R (or Rstudio) **as administrator**. This script downloads the SDL library and installs it along with R (R belongs in a folder where only an adminitrator can write).
 
@@ -41,11 +40,15 @@ We successfully installed the package on Windows machines. As always things are 
 source("https://raw.githubusercontent.com/Jean-Romain/lidRviewer/master/sdl.R")
 ```
 
-3. Once it is done, install the lidRviewer package with `devtools` as usual:
+3. Once it is done, install the `lidRviewer` package with `remotes` as usual:
 
 ```r
-devtools::install_github("Jean-Romain/lidRviewer")
+remotes::install_github("Jean-Romain/lidRviewer")
 ```
+
+### MacOS
+
+I don't know. Input from MacOS users will be appreciated.
 
 ## Usage
 
