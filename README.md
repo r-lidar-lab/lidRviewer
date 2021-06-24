@@ -30,7 +30,7 @@ devtools::install_github("Jean-Romain/lidRviewer")
 
 ### Windows
 
-We successfully installed the package on Windows machines. install sdl MACAs always things are much harder on Windows but we wrote an automatic installation script that install the SDL and build the package.
+We successfully installed the package on Windows machines. As always things are much harder on Windows but we wrote an automatic installation script that install the SDL and build the package.
 
 1. Make sure you have a C++ compiler. On Windows you must install [Rtools.exe](https://cran.r-project.org/bin/windows/Rtools/). You also need to install the `remotes` package to build this package.
 
