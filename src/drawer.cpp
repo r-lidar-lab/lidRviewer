@@ -69,7 +69,6 @@ void Drawer::draw()
 
   glEnd();
   glFlush();
-  SDL_GL_SwapBuffers();
 
   camera->changed = false;
 

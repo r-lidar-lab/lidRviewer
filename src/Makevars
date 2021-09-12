@@ -1,1 +1,2 @@
-PKG_LIBS= -lGL -lGLU -lSDL -LSDmain
+PKG_CXXFLAGS = -I/usr/local/Cellar/sdl2/2.0.16/include/ -I/opt/X11/include
+PKG_LIBS= -framework OpenGL -framework GLUT -lSDL2

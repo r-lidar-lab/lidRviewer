@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // plotxyz
 void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r, IntegerVector g, IntegerVector b, IntegerVector id, float size);
 RcppExport SEXP _lidRviewer_plotxyz(SEXP xSEXP, SEXP ySEXP, SEXP zSEXP, SEXP rSEXP, SEXP gSEXP, SEXP bSEXP, SEXP idSEXP, SEXP sizeSEXP) {

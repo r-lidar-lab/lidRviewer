@@ -131,7 +131,9 @@ void Camera::OnMouseMotion(const SDL_MouseMotionEvent & event)
   }
 }
 
-void Camera::OnMouseButton(const SDL_MouseButtonEvent & event)
+// void Camera::OnMouseButton(const SDL_MouseButtonEvent & event)
+void Camera::OnMouseEvent(const SDL_MouseButtonEvent & event, 
+                          const SDL_MouseWheelEvent & event_wheel)
 {
   if (event.button == SDL_BUTTON_LEFT)
   {
@@ -159,14 +161,14 @@ void Camera::OnMouseButton(const SDL_MouseButtonEvent & event)
       SDL_SetCursor(_move);
     }
   }
-  else if ((event.button == SDL_BUTTON_WHEELUP) && (event.type == SDL_MOUSEBUTTONDOWN))
+  else if((event_wheel.y > 0) && (event.type == SDL_MOUSEBUTTONDOWN))
   {
     distance -= zoomSensivity;
     panSensivity = distance*0.001;
     zoomSensivity = distance*0.05;
     changed = true;
   }
-  else if ((event.button == SDL_BUTTON_WHEELDOWN) && (event.type == SDL_MOUSEBUTTONDOWN))
+  else if((event_wheel.y < 0) && (event.type == SDL_MOUSEBUTTONDOWN))
   {
     distance += zoomSensivity;
     panSensivity = distance*0.001;

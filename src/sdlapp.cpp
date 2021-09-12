@@ -18,8 +18,14 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
 
   SDL_Init(SDL_INIT_VIDEO);
 
-  SDL_WM_SetCaption("Point Cloud Viewer", NULL);
-  SDL_SetVideoMode(width, height, 32, SDL_OPENGL | SDL_RESIZABLE);
+  SDL_Window *window = SDL_CreateWindow(
+    "Point Cloud Viewer",
+    SDL_WINDOWPOS_CENTERED,
+    SDL_WINDOWPOS_CENTERED,
+    width, height,
+    SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+  );
+  SDL_GL_CreateContext(window);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -60,12 +66,19 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
         break;
       case SDL_MOUSEBUTTONUP:
       case SDL_MOUSEBUTTONDOWN:
-        drawer->camera->OnMouseButton(event.button);
+        drawer->camera->OnMouseEvent(event.button, event.wheel);
         break;
-      case SDL_VIDEORESIZE:
-        width = event.resize.w;
-        height = event.resize.h;
-        SDL_SetVideoMode(width, height, 32, SDL_OPENGL| SDL_RESIZABLE);
+      case SDL_WINDOWEVENT_RESIZED:
+        width = event.window.data1;
+        height = event.window.data2;
+        SDL_Window *window = SDL_CreateWindow(
+          "Point Cloud Viewer",
+          SDL_WINDOWPOS_CENTERED,
+          SDL_WINDOWPOS_CENTERED,
+          width, height,
+          SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+        );
+        SDL_GL_CreateContext(window);
         glViewport(0, 0, width, height);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -73,6 +86,7 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
         drawer->camera->changed = true;
         break;
       }
+      SDL_GL_SwapWindow(window);
     }
 
     current_time = SDL_GetTicks();
