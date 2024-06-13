@@ -1,2 +1,2 @@
-PKG_CXXFLAGS = -I/usr/local/Cellar/sdl2/2.0.16/include/ -I/opt/X11/include
-PKG_LIBS= -lSDL2
+PKG_LIBS = $(shell pkg-config --libs sdl2 glu)
+PKG_CPPFLAGS = $(shell pkg-config --cflags sdl2 glu)
