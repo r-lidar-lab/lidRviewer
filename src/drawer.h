@@ -14,7 +14,7 @@ class Drawer
     Drawer(NumericVector, NumericVector, NumericVector, IntegerVector, IntegerVector, IntegerVector, IntegerVector);
     ~Drawer();
     Camera * camera;
-     void draw();
+     bool draw();
      void setPointSize(float);
 
   private:

@@ -113,6 +113,7 @@ void Camera::OnMouseMotion(const SDL_MouseMotionEvent & event)
 {
   if (holdleft) // Rotate
   {
+    //printf("Rotate\n");
     angleZ += event.xrel*rotateSensivity;
     angleY += event.yrel*rotateSensivity;
 
@@ -125,24 +126,25 @@ void Camera::OnMouseMotion(const SDL_MouseMotionEvent & event)
   }
   else if (holdright) // Pan
   {
+    //printf("Pan\n");
     deltaX += event.xrel*panSensivity;
     deltaY -= event.yrel*panSensivity;
     changed = true;
   }
 }
 
-// void Camera::OnMouseButton(const SDL_MouseButtonEvent & event)
-void Camera::OnMouseEvent(const SDL_MouseButtonEvent & event, 
-                          const SDL_MouseWheelEvent & event_wheel)
+void Camera::OnMouseEvent(const SDL_MouseButtonEvent &event, const SDL_MouseWheelEvent &event_wheel)
 {
+  //printf("Mouse event\n");
+
   if (event.button == SDL_BUTTON_LEFT)
   {
-    if ((holdleft)&&(event.type == SDL_MOUSEBUTTONUP))
+    if ((holdleft) && (event.type == SDL_MOUSEBUTTONUP))
     {
       holdleft = false;
       SDL_SetCursor(_hand1);
     }
-    else if ((!holdleft)&&(event.type == SDL_MOUSEBUTTONDOWN))
+    else if ((!holdleft) && (event.type == SDL_MOUSEBUTTONDOWN))
     {
       holdleft = true;
       SDL_SetCursor(_hand2);
@@ -150,30 +152,39 @@ void Camera::OnMouseEvent(const SDL_MouseButtonEvent & event,
   }
   else if (event.button == SDL_BUTTON_RIGHT)
   {
-    if ((holdright)&&(event.type == SDL_MOUSEBUTTONUP))
+    if ((holdright) && (event.type == SDL_MOUSEBUTTONUP))
     {
       holdright = false;
       SDL_SetCursor(_hand1);
     }
-    else if ((!holdright)&&(event.type == SDL_MOUSEBUTTONDOWN))
+    else if ((!holdright) && (event.type == SDL_MOUSEBUTTONDOWN))
     {
       holdright = true;
       SDL_SetCursor(_move);
     }
   }
-  else if((event_wheel.y > 0) && (event.type == SDL_MOUSEBUTTONDOWN))
+
+  // Handle mouse wheel event separately
+  if (event_wheel.type == SDL_MOUSEWHEEL)
   {
-    distance -= zoomSensivity;
-    panSensivity = distance*0.001;
-    zoomSensivity = distance*0.05;
-    changed = true;
-  }
-  else if((event_wheel.y < 0) && (event.type == SDL_MOUSEBUTTONDOWN))
-  {
-    distance += zoomSensivity;
-    panSensivity = distance*0.001;
-    zoomSensivity = distance*0.05;
-    changed = true;
+    //printf("Wheel even\n");
+
+    if (event_wheel.y > 0)
+    {
+      //printf("Wheel up\n");
+      distance += zoomSensivity;
+      panSensivity = distance * 0.001;
+      zoomSensivity = distance * 0.05;
+      changed = true;
+    }
+    else if (event_wheel.y < 0)
+    {
+      //printf("Wheel down\n");
+      distance -= zoomSensivity;
+      panSensivity = distance * 0.001;
+      zoomSensivity = distance * 0.05;
+      changed = true;
+    }
   }
 }
 

@@ -1,8 +1,7 @@
 Package: lidRviewer
 Type: Package
 Title: 3D point cloud viewer for lidR
-Version: 0.2.0
-Date: 2018-12-28
+Version: 0.3.0
 Author: Jean-Romain Roussel [aut,cre,cph]
 Maintainer: Jean-Romain Roussel <jean-romain.roussel.1@ulaval.ca>
 Description: A simple point cloud viewer for R which enable to display million of 

@@ -39,15 +39,27 @@ Drawer::~Drawer()
   delete camera;
 }
 
-void Drawer::draw()
+bool Drawer::draw()
 {
+  //printf("Pass %d/%d\n", pass, maxpass);
+
   if (camera->changed)
+  {
+    //printf("Camera changed\n");
     pass = 1;
+  }
   if (pass > maxpass)
-    return;
+  {
+    //printf("No need to draw\n");
+    return false;
+  }
+
+  //printf("Do draw %d/%d\n", pass, maxpass);
 
   if (pass == 1)
+  {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -73,7 +85,7 @@ void Drawer::draw()
   camera->changed = false;
 
   pass++;
-  return;
+  return true;
 }
 
 void Drawer::setPointSize(float size)

@@ -10,8 +10,7 @@ class Camera
     ~Camera();
 
     void OnMouseMotion(const SDL_MouseMotionEvent & event);
-    void OnMouseEvent(const SDL_MouseButtonEvent & event, 
-                      const SDL_MouseWheelEvent & event_wheel);
+    void OnMouseEvent(const SDL_MouseButtonEvent & event, const SDL_MouseWheelEvent & event_wheel);
     void OnKeyboard(const SDL_KeyboardEvent & event);
 
     void look();
