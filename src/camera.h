@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 class Camera
 {
@@ -10,7 +10,7 @@ class Camera
     ~Camera();
 
     void OnMouseMotion(const SDL_MouseMotionEvent & event);
-    void OnMouseButton(const SDL_MouseButtonEvent & event);
+    void OnMouseEvent(const SDL_MouseButtonEvent & event, const SDL_MouseWheelEvent & event_wheel);
     void OnKeyboard(const SDL_KeyboardEvent & event);
 
     void look();
