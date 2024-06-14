@@ -52,3 +52,4 @@ SDL_Cursor * cursorFromXPM(const char * xpm[])
     free(mask);
     return cursor;
 }
+
