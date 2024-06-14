@@ -5,6 +5,7 @@
 #include <GL/glu.h>
 #include <Rcpp.h>
 #include "camera.h"
+#include "index.h"
 
 using namespace Rcpp;
 
@@ -19,8 +20,6 @@ class Drawer
 
   private:
     int npoints;
-    int pass;
-    int maxpass;
     float size;
     double minx;
     double miny;
@@ -38,6 +37,7 @@ class Drawer
     IntegerVector g;
     IntegerVector b;
     IntegerVector id;
+    GridPartition index;
 };
 
 #endif //DRAWER_H

@@ -4,6 +4,7 @@
 #include "sdlglutils.h"
 #include <Rcpp.h>
 
+
 Camera::Camera()
 {
   const char *hand1[] =
@@ -240,5 +241,45 @@ void Camera::look()
   glRotated(angleY,0,1,0);
   glRotated(angleZ,0,0,1);
   glRotated(90, 0, 0, 1);
+
+  printf("delta [%.2f %.2f], distance %.2f,  angle [%.2f, %.2f]\n", deltaX, deltaY, distance, angleY, angleZ);
+
+  // Convert angles from degrees to radians
+  double alphay_rad = angleY * M_PI / 180.0;
+  double alphaz_rad = angleZ * M_PI / 180.0;
+
+  // Calculate the coordinates of the camera
+  y = -distance*sin(M_PI/2-alphay_rad) * cos(alphaz_rad) - deltaX;
+  x = -distance*sin(M_PI/2-alphay_rad) * sin(alphaz_rad) - deltaY;
+  z = distance*cos(M_PI/2-alphay_rad);
+
+  printf("Camera position distance = %2.f coordinates = (%.2f %.2f %.2f)\n", distance, x, y, z);
+}
+
+bool Camera::see(float px, float py, float pz)
+{
+  // Calculate vectors AB and BC
+  float AB[3] = { (px+deltaX)-x, (py+deltaY)-y, (pz+deltaZ)-z };
+  float BC[3] = { -x, -y, -z };
+
+  // Calculate the dot product of AB and BC
+  double dot = AB[0] * BC[0] + AB[1] * BC[1] + AB[2] * BC[2];
+
+  // Calculate the magnitudes of AB and BC
+  double magAB = sqrt(AB[0] * AB[0] + AB[1] * AB[1] + AB[2] * AB[2]);
+  double magBC = sqrt(BC[0] * BC[0] + BC[1] * BC[1] + BC[2] * BC[2]);
+
+  // Calculate the cosine of the angle between AB and BC
+  double cosTheta = dot / (magAB * magBC);
+
+  // Calculate the angle in radians
+  double angleRadians = acos(cosTheta);
+
+  // Convert the angle to degrees
+  double angle = angleRadians * (180.0 / M_PI);
+
+  //printf("(%.1lf, %.1lf, %.1lf) angle %.1lf\n", px, py, pz, angle);
+
+  return angle < 60;
 }
 

@@ -19,13 +19,17 @@ class Camera
     void setZoomSensivity(double sensivity);
     void setDeltaXYZ(double dx, double dy, double dz);
     void setDistance(double);
-    bool changed;
 
-  private:
+    bool see(float x, float y, float z);
+
+    bool changed;
     double zoomSensivity;
     double rotateSensivity;
     double panSensivity;
     double distance;
+    double x;
+    double y;
+    double z;
     double angleY;
     double angleZ;
     double deltaX;
