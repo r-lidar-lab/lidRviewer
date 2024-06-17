@@ -34,9 +34,9 @@ devtools::install_github("Jean-Romain/lidRviewer")
 
 ### MacOS
 
-``
+```
 brew install sdl2 mesa mesa-glu
-``
+```
 
 ```r
 devtools::install_github("Jean-Romain/lidRviewer")
