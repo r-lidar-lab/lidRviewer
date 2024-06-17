@@ -66,7 +66,7 @@ AS_IF([test "x$have_glu" = "xno"], [
       - Debian: apt-get install libglu1-mesa-dev
       - Dnf based: dnf install mesa-libGLU-devel
       - Arch: pacman -S glu
-      - MacOS: brew install mesa
+      - MacOS: brew install mesa-glu
   ])
 ])
 
@@ -89,6 +89,6 @@ AS_IF([test "x$have_sdl2" = "xno" -o "x$have_glu" = "xno" -o "x$have_gl" = "xno"
 
 AC_SUBST([CFLAGS])
 AC_SUBST([LIBS])
-AC_CONFIG_FILES([src/Makefile])
+AC_CONFIG_FILES([src/Makevars])
 AC_OUTPUT
 

@@ -3922,7 +3922,7 @@ fi
 if test "x$have_sdl2" = "xno"
 then :
 
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}:
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error:
     SDL2 library not found!
 
     Please install SDL2 development package:
@@ -3931,7 +3931,7 @@ then :
       - Arch: pacman -S sdl2
       - MacOS: brew install sdl2
   " >&5
-printf "%s\n" "$as_me:
+printf "%s\n" "$as_me: error:
     SDL2 library not found!
 
     Please install SDL2 development package:
@@ -3946,23 +3946,23 @@ fi
 if test "x$have_glu" = "xno"
 then :
 
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}:
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error:
     GLU library not found!
 
     Please install GLU development package:
       - Debian: apt-get install libglu1-mesa-dev
       - Dnf based: dnf install mesa-libGLU-devel
       - Arch: pacman -S glu
-      - MacOS: brew install mesa
+      - MacOS: brew install mesa-glu
   " >&5
-printf "%s\n" "$as_me:
+printf "%s\n" "$as_me: error:
     GLU library not found!
 
     Please install GLU development package:
       - Debian: apt-get install libglu1-mesa-dev
       - Dnf based: dnf install mesa-libGLU-devel
       - Arch: pacman -S glu
-      - MacOS: brew install mesa
+      - MacOS: brew install mesa-glu
   " >&6;}
 
 fi
@@ -3970,7 +3970,7 @@ fi
 if test "x$have_gl" = "xno"
 then :
 
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}:
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error:
     GL library not found!
 
     Please install GL development package:
@@ -3979,7 +3979,7 @@ then :
       - Arch: pacman -S mesa
       - MacOS: brew install mesa
   " >&5
-printf "%s\n" "$as_me:
+printf "%s\n" "$as_me: error:
     GL library not found!
 
     Please install GL development package:
@@ -4001,7 +4001,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files src/Makefile"
+ac_config_files="$ac_config_files src/Makevars"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -4704,7 +4704,7 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+    "src/Makevars") CONFIG_FILES="$CONFIG_FILES src/Makevars" ;;
 
   *) as_fn_error $? "invalid argument: '$ac_config_target'" "$LINENO" 5;;
   esac
