@@ -42,33 +42,49 @@ LIBS="$LIBS $SDL2_LIBS $GLU_LIBS $GL_LIBS"
 AC_CHECK_HEADERS([SDL2/SDL.h GL/glu.h GL/gl.h])
 
 # Checks for library functions.
-AC_CHECK_LIB([SDL2], [SDL_Init], [], [AC_MSG_ERROR([
-  SDL2 library not found!
+AC_CHECK_LIB([SDL2], [SDL_Init], [have_sdl2=yes], [have_sdl2=no])
+AC_CHECK_LIB([GLU], [gluLookAt], [have_glu=yes], [have_glu=no])
+AC_CHECK_LIB([GL], [glLoadIdentity], [have_gl=yes], [have_gl=no])
 
-  Please install SDL2 development package:
-   - Debian: apt-get install libsdl2-dev
-   - Dnf based: dnf install SDL2-devel
-   - Arch: pacman -S sdl2
-   - MacOS: brew install sdl2
-])])
-AC_CHECK_LIB([GLU], [gluLookAt], [], [AC_MSG_ERROR([
-  GLU library not found!
+AS_IF([test "x$have_sdl2" = "xno"], [
+  AC_MSG_NOTICE([
+    SDL2 library not found!
+  
+    Please install SDL2 development package:
+      - Debian: apt-get install libsdl2-dev
+      - Dnf based: dnf install SDL2-devel
+      - Arch: pacman -S sdl2
+      - MacOS: brew install sdl2
+  ])
+])
 
-  Please install GLU development package:
-   - Debian: apt-get install libglu1-mesa-dev
-   - Dnf based: dnf install mesa-libGLU-devel
-   - Arch: pacman -S mesa
-])])
-AC_CHECK_LIB([GL], [glLoadIdentity], [], [AC_MSG_ERROR([
-  GL library not found!
+AS_IF([test "x$have_glu" = "xno"], [
+  AC_MSG_NOTICE([
+    GLU library not found!
+  
+    Please install GLU development package:
+      - Debian: apt-get install libglu1-mesa-dev
+      - Dnf based: dnf install mesa-libGLU-devel
+      - Arch: pacman -S glu
+      - MacOS: brew install mesa
+  ])
+])
 
-  Please install OpenGL development package:
-   - Debian: apt-get install libgl1-mesa-dev
-   - Dnf based: dnf install mesa-libGL-devel
-   - Arch: pacman -S mesa
-   - MacOS: brew install mesa
-])])
+AS_IF([test "x$have_gl" = "xno"], [
+  AC_MSG_NOTICE([
+    GL library not found!
+  
+    Please install GL development package:
+      - Debian: apt-get install libgl1-mesa-dev
+      - Dnf based: dnf install mesa-libGL-devel
+      - Arch: pacman -S mesa
+      - MacOS: brew install mesa
+  ])
+])
 
+AS_IF([test "x$have_sdl2" = "xno" -o "x$have_glu" = "xno" -o "x$have_gl" = "xno"], [
+  AC_MSG_ERROR([Some libraries were not found!])
+])
 
 
 AC_SUBST([CFLAGS])
