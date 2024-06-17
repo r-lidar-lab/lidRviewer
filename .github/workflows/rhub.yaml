@@ -85,6 +85,14 @@ jobs:
         with:
           token: ${{ secrets.RHUB_TOKEN }}
           job-config: ${{ matrix.config.job-config }}
+      - name: Setup system dependencies
+        run: |
+          if (Sys.info()[["sysname"]] == "Linux") {
+            system("sudo apt install -y libsdl2-dev")
+          } else if (Sys.info()[["sysname"]] == "Darwin") {
+            system("brew install sdl2 mesa")
+          }
+        shell: Rscript {0}
       - uses: r-hub/actions/setup-deps@v1
         with:
           job-config: ${{ matrix.config.job-config }}

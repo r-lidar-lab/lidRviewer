@@ -47,7 +47,7 @@ AC_CHECK_LIB([GLU], [gluLookAt], [have_glu=yes], [have_glu=no])
 AC_CHECK_LIB([GL], [glLoadIdentity], [have_gl=yes], [have_gl=no])
 
 AS_IF([test "x$have_sdl2" = "xno"], [
-  AC_MSG_NOTICE([
+  AC_MSG_NOTICE([error: 
     SDL2 library not found!
   
     Please install SDL2 development package:
@@ -59,7 +59,7 @@ AS_IF([test "x$have_sdl2" = "xno"], [
 ])
 
 AS_IF([test "x$have_glu" = "xno"], [
-  AC_MSG_NOTICE([
+  AC_MSG_NOTICE([error: 
     GLU library not found!
   
     Please install GLU development package:
@@ -71,7 +71,7 @@ AS_IF([test "x$have_glu" = "xno"], [
 ])
 
 AS_IF([test "x$have_gl" = "xno"], [
-  AC_MSG_NOTICE([
+  AC_MSG_NOTICE([error: 
     GL library not found!
   
     Please install GL development package:
