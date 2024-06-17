@@ -43,30 +43,30 @@ AC_CHECK_HEADERS([SDL2/SDL.h GL/glu.h GL/gl.h])
 
 # Checks for library functions.
 AC_CHECK_LIB([SDL2], [SDL_Init], [], [AC_MSG_ERROR([
-  SDL2 library not found
+  SDL2 library not found!
 
-  Please install SDL2 development package.
+  Please install SDL2 development package:
    - Debian: apt-get install libsdl2-dev
-    - Dnf based: dnf install SDL2-devel
-    - Arch: pacman -S sdl2
-    - MacOS: brew install sdl2
+   - Dnf based: dnf install SDL2-devel
+   - Arch: pacman -S sdl2
+   - MacOS: brew install sdl2
 ])])
 AC_CHECK_LIB([GLU], [gluLookAt], [], [AC_MSG_ERROR([
-  GLU library not found
+  GLU library not found!
 
-  Please install GLU development package.
+  Please install GLU development package:
    - Debian: apt-get install libglu1-mesa-dev
-    - Dnf based: dnf install mesa-libGLU-devel
-    - Arch: pacman -S mesa
+   - Dnf based: dnf install mesa-libGLU-devel
+   - Arch: pacman -S mesa
 ])])
 AC_CHECK_LIB([GL], [glLoadIdentity], [], [AC_MSG_ERROR([
-  GL library not found
+  GL library not found!
 
-  Please install OpenGL development package.
+  Please install OpenGL development package:
    - Debian: apt-get install libgl1-mesa-dev
-    - Dnf based: dnf install mesa-libGL-devel
-    - Arch: pacman -S mesa
-    - MacOS: brew install mesa
+   - Dnf based: dnf install mesa-libGL-devel
+   - Arch: pacman -S mesa
+   - MacOS: brew install mesa
 ])])
 
 
