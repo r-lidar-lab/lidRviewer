@@ -14,3 +14,6 @@ Encoding: UTF-8
 LazyData: true
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
+SystemRequirements:
+  GLU,
+  OpenGL
