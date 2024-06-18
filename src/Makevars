@@ -1,2 +1,0 @@
-PKG_LIBS = $(shell pkg-config --libs sdl2 glu)
-PKG_CPPFLAGS = $(shell pkg-config --cflags sdl2 glu)
