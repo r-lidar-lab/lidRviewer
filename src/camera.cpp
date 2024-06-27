@@ -127,6 +127,7 @@ void Camera::OnMouseMotion(const SDL_MouseMotionEvent & event)
   }
   else if (holdright) // Pan
   {
+    panSensivity = distance*0.01;
     //printf("Pan\n");
     deltaX += event.xrel*panSensivity;
     deltaY -= event.yrel*panSensivity;
@@ -249,8 +250,8 @@ void Camera::look()
   double alphaz_rad = angleZ * M_PI / 180.0;
 
   // Calculate the coordinates of the camera
-  y = -distance*sin(M_PI/2-alphay_rad) * cos(alphaz_rad) - deltaX;
-  x = -distance*sin(M_PI/2-alphay_rad) * sin(alphaz_rad) - deltaY;
+  y = -distance*sin(M_PI/2-alphay_rad) * cos(alphaz_rad) + deltaX*sin(alphaz_rad) + deltaY*cos(alphaz_rad);;
+  x = -distance*sin(M_PI/2-alphay_rad) * sin(alphaz_rad) + deltaX*cos(alphaz_rad) + deltaY*sin(alphaz_rad);
   z = distance*cos(M_PI/2-alphay_rad);
 
   printf("Camera position distance = %2.f coordinates = (%.2f %.2f %.2f)\n", distance, x, y, z);
@@ -277,6 +278,8 @@ bool Camera::see(float px, float py, float pz)
 
   // Convert the angle to degrees
   double angle = angleRadians * (180.0 / M_PI);
+
+  if (angle < 0) angle *= -1;
 
   //printf("(%.1lf, %.1lf, %.1lf) angle %.1lf\n", px, py, pz, angle);
 

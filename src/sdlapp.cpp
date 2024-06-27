@@ -33,6 +33,7 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
   gluPerspective(70, (double)width / height, 0.1, 100000);
 
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
   Drawer *drawer = new Drawer(x, y, z, r, g, b, id);
   drawer->camera->setRotateSensivity(0.3);
@@ -57,6 +58,18 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
         {
         case SDLK_ESCAPE:
           run = false;
+          break;
+        case SDLK_d:
+          drawer->setAttribute(Attribute::Distance);
+          drawer->camera->changed = true;
+          break;
+        case SDLK_z:
+          drawer->setAttribute(Attribute::Z);
+          drawer->camera->changed = true;
+          break;
+        case SDLK_f:
+          drawer->setAttribute(Attribute::Z);
+          drawer->camera->changed = true;
           break;
         default:
           drawer->camera->OnKeyboard(event.key);

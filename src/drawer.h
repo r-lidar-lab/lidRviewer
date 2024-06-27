@@ -9,6 +9,8 @@
 
 using namespace Rcpp;
 
+enum Attribute{Z, Distance, Ratio};
+
 class Drawer
 {
   public:
@@ -17,6 +19,7 @@ class Drawer
     Camera * camera;
      bool draw();
      void setPointSize(float);
+     void setAttribute(Attribute x) { attr = x; };
 
   private:
     int npoints;
@@ -38,6 +41,7 @@ class Drawer
     IntegerVector b;
     IntegerVector id;
     GridPartition index;
+    Attribute attr;
 };
 
 #endif //DRAWER_H

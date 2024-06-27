@@ -86,7 +86,7 @@ inline void GridPartition::build(const Rcpp::NumericVector x, const Rcpp::Numeri
 
   // Historically the spatial index was a quadtree defined by a depth
   // The depth is still used to compute the number of cells
-  ncells = 4000;
+  ncells = 1000;
 
   // Compute some indicator of shape
   double xrange = xmax - xmin;
@@ -113,7 +113,7 @@ inline void GridPartition::build(const Rcpp::NumericVector x, const Rcpp::Numeri
   yres = yrange / (double)nrows;
   zres = zrange / (double)nlayers;
 
-  printf("ncells = %d res = %.1lf, %.1lf, %.1lf", ncells, xres, yres, zres);
+  printf("ncells = %d res = %.1lf, %.1lf, %.1lf\n", ncells, xres, yres, zres);
 
   area = xrange * yrange;
   volume = area * zrange;
