@@ -23,13 +23,13 @@ sudo apt-get install libsdl2-dev freeglut3-dev
 ```
 
 ```r
-devtools::install_github("Jean-Romain/lidRviewer")
+devtools::install_github("r-lidar-lab/lidRviewer")
 ```
 
 ### Windows
 
 ```r
-devtools::install_github("Jean-Romain/lidRviewer")
+devtools::install_github("r-lidar-lab/lidRviewer")
 ```
 
 ### MacOS
@@ -39,7 +39,7 @@ brew install sdl2 mesa mesa-glu
 ```
 
 ```r
-devtools::install_github("Jean-Romain/lidRviewer")
+devtools::install_github("r-lidar-lab/lidRviewer")
 ```
 
 ## Usage
