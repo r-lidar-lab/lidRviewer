@@ -20,6 +20,7 @@ class Camera
     void setDeltaXYZ(double dx, double dy, double dz);
     void setDistance(double);
 
+    float angle(float x, float y, float z);
     bool see(float x, float y, float z);
 
     bool changed;

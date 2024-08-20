@@ -9,7 +9,7 @@
 
 using namespace Rcpp;
 
-enum Attribute{Z, Distance, Ratio};
+enum Attribute{Z, Distance, Ratio, Angle};
 
 class Drawer
 {

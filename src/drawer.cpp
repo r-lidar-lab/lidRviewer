@@ -1,4 +1,5 @@
 #include "drawer.h"
+#include <chrono>
 
 Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerVector r, IntegerVector g, IntegerVector b, IntegerVector id)
 {
@@ -17,8 +18,19 @@ Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerVector 
   this->minz = min(z);
   this->maxx = max(x);
   this->maxy = max(y);
-  this->maxz = max(z);
+  this->maxz = mean(z)*2-minz;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
   index = GridPartition(x,y,z);
+
+  auto end = std::chrono::high_resolution_clock::now();
+
+  // Calculate the duration
+  std::chrono::duration<double> duration = end - start;
+
+  // Output the duration in seconds
+  std::cout << "Time taken for indexation: " << duration.count() << " seconds" << std::endl;
 
   attr = Attribute::Z;
 
@@ -52,9 +64,6 @@ bool Drawer::draw()
 
   camera->look();
 
-  glPointSize(2);
-  glBegin(GL_POINTS);
-
   int n_points_to_display = 0;
   int max_points_to_display = 2000000;
 
@@ -68,33 +77,91 @@ bool Drawer::draw()
   cell_distance.reserve(index.ncells);
   cell_factor.reserve(index.ncells);
 
+  glLineWidth(2.0f);
+  glPointSize(5.0f);
+
+  // Draw the X axis (red)
+  glColor3f(1.0f, 0.0f, 0.0f);
+  glBegin(GL_LINES);
+  glVertex3f(minx-xcenter, miny-ycenter, minz+10); // Start point of X axis
+  glVertex3f(minx-xcenter+20, miny-ycenter, minz+10);  // End point of X axis
+  glEnd();
+
+  // Draw the Y axis (green)
+  glColor3f(0.0f, 1.0f, 0.0f);
+  glBegin(GL_LINES);
+  glVertex3f(minx-xcenter, miny-ycenter, minz+10); // Start point of Y axis
+  glVertex3f(minx-xcenter, miny-ycenter+20, minz+10);  // End point of Y axis
+  glEnd();
+
+  // Draw the Z axis (blue)
+  glColor3f(0.0f, 0.0f, 1.0f);
+  glBegin(GL_LINES);
+  glVertex3f(minx-xcenter, miny-ycenter, minz+10); // Start point of Y axis
+  glVertex3f(minx-xcenter, miny-ycenter, minz+20+10);  // End point of Y axis
+  glEnd();
+
   // Check the cells
   for (auto cell = 0 ; cell < index.ncells ; cell++)
   {
     float cx, cy, cz;
     index.xyz_from_cell(cell, cx, cy, cz);
 
-    //printf("cell %d: (%.1f, %.1f, %.1f)\n", cell, cx, cy, cz);
+    cx -= xcenter;
+    cy -= ycenter;
+    cz -= zcenter;
 
-    if (camera->see(cx-xcenter,cy-ycenter,cz-zcenter))
+    //printf("cell %d: (%.1f, %.1f, %.1f)\n", cell, cx, cy, cz);
+    bool visible = camera->see(cx,cy,cz);
+
+    if (visible)
     {
       n_points_to_display += index.heap[cell].size();
-      double dx = (cx-xcenter+camera->deltaX-camera->x);
-      double dy = (cy-ycenter+camera->deltaY-camera->y);
-      double dz = (cz-zcenter+camera->deltaZ-camera->z);
+      double dx = (cx+camera->deltaX-camera->x);
+      double dy = (cy+camera->deltaY-camera->y);
+      double dz = (cz+camera->deltaZ-camera->z);
       double distance = sqrt(dx*dx+dy*dy+dz*dz);
 
       cell_npoints.push_back(index.heap[cell].size());
       cells_to_display.push_back(cell);
       cell_distance.push_back(distance);
     }
+
+    // Draw this quad
+    GLfloat size = index.xres;
+    GLfloat z = minz;
+    GLfloat halfSize = size / 2.0f;
+
+    // Updated vertices based on center and size
+    GLfloat vertices[] = {
+      cx - halfSize, cy - halfSize, z,  // Bottom-left corner
+      cx + halfSize, cy - halfSize, z,  // Bottom-right corner
+      cx + halfSize, cy + halfSize, z,  // Top-right corner
+      cx - halfSize, cy + halfSize, z   // Top-left corner
+    };
+
+    glBegin(GL_LINE_LOOP);
+
+    if (visible)
+      glColor3f(1.0f, 0.0f, 0.0f);
+    else
+      glColor3f(0.25f, 0.0f, 0.0f);
+
+    for (int i = 0; i < 12; i += 3)
+    {
+      glVertex3f(vertices[i], vertices[i + 1], vertices[i + 2]);
+    }
+    glEnd();
   }
+
 
   double dmin = *min_element(cell_distance.begin(), cell_distance.end());
   double dmax = *max_element(cell_distance.begin(), cell_distance.end());
-  float zrange = index.zmax-index.zmin;
+  float zrange = maxz-minz;
 
-  printf("dmin %.lf, dmax %.1lf, zrange %.1f\n", dmin, dmax, zrange);
+  printf("  dmin %.lf, dmax %.1lf, zrange %.1f\n", dmin, dmax, zrange);
+
+  glBegin(GL_POINTS);
 
   int k = 0;
 
@@ -104,13 +171,14 @@ bool Drawer::draw()
     double dist = cell_distance[j];
     int n = cell_npoints[j];
 
-    int factor = std::floor(dist/(zrange*4))+1;
+    //int factor = std::floor(dist/(zrange*4))+1;
+    int factor = 1;
 
-    //printf("camera to cell %d: %.1f, factor %d\n", j, dist, factor);
+    //printf("    camera to cell %d: %.1f, factor %d\n", j, dist, factor);
 
     for (auto i : index.heap[cell])
     {
-      if (factor > 1 && i % factor != 0) continue;
+      //if (factor > 1 && i % factor != 0) continue;
 
       float px = x(i)-xcenter;
       float py = y(i)-ycenter;
@@ -129,6 +197,14 @@ bool Drawer::draw()
       case Attribute::Distance:
         glColor3ub((dmax-dist)/(dmax-dmin)*255, 0, 255-(dmax-dist)/(dmax-dmin)*255);
         break;
+      case Attribute::Angle:
+      {
+        float angle = camera->angle(px, py, pz);
+        float amax = 90;
+        float amin = 0;
+        glColor3ub((amax-angle)/(amax-amin)*255, 0, 255-(amax-angle)/(amax-amin)*255);
+        break;
+      }
       case Attribute::Ratio:
         if (factor == 1) glColor3ub(0, 138, 255);
         else if (factor == 2) glColor3ub(0, 255, 0);

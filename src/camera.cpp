@@ -243,21 +243,30 @@ void Camera::look()
   glRotated(angleZ,0,0,1);
   glRotated(90, 0, 0, 1);
 
-  printf("delta [%.2f %.2f], distance %.2f,  angle [%.2f, %.2f]\n", deltaX, deltaY, distance, angleY, angleZ);
+
 
   // Convert angles from degrees to radians
   double alphay_rad = angleY * M_PI / 180.0;
-  double alphaz_rad = angleZ * M_PI / 180.0;
+  double alphaz_rad = angleZ * M_PI / 180.0 * -1;
+
+
+  double dx = deltaX*cos(alphaz_rad) + deltaY*sin(alphaz_rad);
+  double dy = deltaY*cos(alphaz_rad) + deltaX*sin(alphaz_rad);
+  /*if (angleZ < 90) { dx *= -1.0; dy *= -1.0; }
+  else if (angleZ < 180) { dx *= 1.0; dy *= -1.0; }
+  else if (angleZ < 270) { dx *= -1.0; dy *= 1.0; }
+  else if (angleZ <= 360) { dx *= -1.0; dy *= -1.0; }*/
 
   // Calculate the coordinates of the camera
-  y = -distance*sin(M_PI/2-alphay_rad) * cos(alphaz_rad) + deltaX*sin(alphaz_rad) + deltaY*cos(alphaz_rad);;
-  x = -distance*sin(M_PI/2-alphay_rad) * sin(alphaz_rad) + deltaX*cos(alphaz_rad) + deltaY*sin(alphaz_rad);
+  x = distance*sin(M_PI/2-alphay_rad)*cos(alphaz_rad) + dx;
+  y = distance*sin(M_PI/2-alphay_rad)*sin(alphaz_rad) + dy;
   z = distance*cos(M_PI/2-alphay_rad);
 
-  printf("Camera position distance = %2.f coordinates = (%.2f %.2f %.2f)\n", distance, x, y, z);
+  printf("  Δ [%.2f %.2f], δ [%.2f %.2f], α [%.2f, %.2f]\n", deltaX, deltaY, dx, dy, angleY, angleZ);
+  printf("  Camera distance = %2.f coordinates = (%.2f %.2f %.2f)\n", distance, x, y, z);
 }
 
-bool Camera::see(float px, float py, float pz)
+float Camera::angle(float px, float py, float pz)
 {
   // Calculate vectors AB and BC
   float AB[3] = { (px+deltaX)-x, (py+deltaY)-y, (pz+deltaZ)-z };
@@ -281,8 +290,11 @@ bool Camera::see(float px, float py, float pz)
 
   if (angle < 0) angle *= -1;
 
-  //printf("(%.1lf, %.1lf, %.1lf) angle %.1lf\n", px, py, pz, angle);
+  return angle;
+}
 
-  return angle < 60;
+bool Camera::see(float px, float py, float pz)
+{
+  return angle(px, py, pz) < 60;
 }
 

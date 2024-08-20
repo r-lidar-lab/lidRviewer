@@ -32,7 +32,19 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
   glLoadIdentity();
   gluPerspective(70, (double)width / height, 0.1, 100000);
 
-  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);              // Enable depth testing for z-culling
+  glDepthFunc(GL_LEQUAL);               // Set the type of depth-test
+  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // Nice perspective corrections
+
+  // Round point
+  glEnable(GL_POINT_SMOOTH);
+
+  // Enable line anti-aliasing
+  glEnable(GL_LINE_SMOOTH);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
   glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
   Drawer *drawer = new Drawer(x, y, z, r, g, b, id);
@@ -68,7 +80,11 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
           drawer->camera->changed = true;
           break;
         case SDLK_f:
-          drawer->setAttribute(Attribute::Z);
+          drawer->setAttribute(Attribute::Ratio);
+          drawer->camera->changed = true;
+          break;
+        case SDLK_a:
+          drawer->setAttribute(Attribute::Angle);
           drawer->camera->changed = true;
           break;
         default:
