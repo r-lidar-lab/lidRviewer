@@ -33,6 +33,7 @@ Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerVector 
   std::cout << "Time taken for indexation: " << duration.count() << " seconds" << std::endl;
 
   attr = Attribute::Z;
+  draw_index = false;
 
   xcenter = (maxx+minx)/2;
   ycenter = (maxy+miny)/2;
@@ -65,9 +66,6 @@ bool Drawer::draw()
   glLineWidth(2.0f);
   glPointSize(this->size);
 
-  bool draw_index = true;
-
-
   // ==========================
   // Check the cells visibility
   // ==========================
@@ -81,14 +79,18 @@ bool Drawer::draw()
     // ----------------------------------------------
 
     float cx, cy, cz;
+
     index.xyz_from_cell(i, cx, cy, cz);
-    cz = cell.min;
+
     cx -= xcenter;
     cy -= ycenter;
+    cz = cell.min;
     cz -= zcenter;
+
     double dx = (cx-camera.x);
     double dy = (cy-camera.y);
     double dz = (cz-camera.z);
+
     cell.distance = sqrt(dx*dx+dy*dy+dz*dz);
     pcell.distance = cell.distance;
 
@@ -117,18 +119,14 @@ bool Drawer::draw()
       n_points_to_display += pcell.idx.size();
     }
 
-    if (draw_index)
+    if (draw_index && cell.idx.size() > 0)
     {
-      // Draw this quad
-      GLfloat size = index.xres;
-      GLfloat halfSize = size / 2.0f;
-
       // Updated vertices based on center and size
       GLfloat vertices[] = {
-        cx - halfSize, cy - halfSize, cz,  // Bottom-left corner
-        cx + halfSize, cy - halfSize, cz,  // Bottom-right corner
-        cx + halfSize, cy + halfSize, cz,  // Top-right corner
-        cx - halfSize, cy + halfSize, cz   // Top-left corner
+        edge1x, edge1y, cz,
+        edge2x, edge2y, cz,
+        edge4x, edge4y, cz,
+        edge3x, edge3y, cz
       };
 
       glBegin(GL_LINE_LOOP);
@@ -146,6 +144,64 @@ bool Drawer::draw()
     }
   }
 
+  double dmin = INFD;
+  double dmax = -INFD
+  for (auto& cell : index.heap)
+  {
+    if (!cell.visible) continue;
+    if (cell.distance < dmin) dmin = cell.distance;
+    if (cell.distance > dmax) dmax = cell.distance;
+  }
+
+  printf("dmin %.1lf, dmax %.1lf\n", (maxx-minx)/2, (maxx-minx)*3);
+
+  // Decimation parameters
+  float fmin = 0.01f;
+  float fmax = 1.0f;
+  int nsampled = 0;
+  for (auto i = 0 ; i < index.ncells ; i++)
+  {
+    Cell& cell = index.heap[i];
+    Cell& pcell = index.preview_points[i];
+
+    if (cell.visible == false) continue;
+
+    float factor = 0;
+    double dmin = (maxx-minx)/2;
+    double dmax = (maxx-minx);
+    if (cell.distance <= dmin)
+      factor = 1.0f;
+    else if (cell.distance >= dmax)
+      factor = 0.0f;
+    else
+      factor = 1.0f - (cell.distance - dmin) / (dmax - dmin);
+
+    cell.factor = factor;
+    pcell.factor = factor;
+
+    nsampled += cell.idx.size() * cell.factor;
+
+    printf(" distance = %.1lf factor %.3f, nsampled %d\n", cell.distance, cell.factor, nsampled);
+  }
+
+  if (nsampled > max_points_to_display)
+  {
+    for (auto i = 0 ; i < index.ncells ; i++)
+    {
+      Cell& cell = index.heap[i];
+      Cell& pcell = index.preview_points[i];
+
+      if (cell.visible == false) continue;
+
+      cell.factor = cell.factor * (double)max_points_to_display/(double)nsampled;
+      pcell.factor = cell.factor;
+
+      printf(" distance = %.1lf factor %.3f\n", cell.distance, cell.factor);
+    }
+  }
+
+  //printf("dmin = %.1lf, dmax = %.1lf\n", dmin, dmax);
+
   // ======================
   // Display preview points
   // ======================
@@ -162,7 +218,7 @@ bool Drawer::draw()
 
     double dist = cell.distance;
     int n = cell.idx.size();
-    int factor = cell.factor;
+    float factor = cell.factor;
 
     //printf("    camera to cell %d: %.1f, factor %d\n", j, dist, factor);
 
@@ -180,19 +236,12 @@ bool Drawer::draw()
           glColor3ub(r(i), g(i), b(i));
         else
           glColor3ub(r(id(i)-1), g(id(i)-1), b(id(i)-1));
-
         break;
-      /*case Attribute::Distance:
+      case Attribute::Distance:
         glColor3ub((dmax-dist)/(dmax-dmin)*255, 0, 255-(dmax-dist)/(dmax-dmin)*255);
-        break;*/
+        break;
       case Attribute::Ratio:
-        if (factor == 1) glColor3ub(0, 138, 255);
-        else if (factor == 2) glColor3ub(0, 255, 0);
-        else if (factor == 3) glColor3ub(255, 138, 0);
-        else if (factor == 4) glColor3ub(255, 0, 0);
-        else if (factor == 5) glColor3ub(138, 0, 0);
-        else if (factor == 6) glColor3ub(70, 0, 0);
-        else glColor3ub(45, 0, 0);
+        glColor3ub((1.0f-factor)*255, 0, factor*255);
         break;
       }
 
@@ -201,20 +250,27 @@ bool Drawer::draw()
     }
   }
 
-  /*for (auto j = 0 ; j < cells_to_display.size() ; j++)
+  // ======================
+  // Display sampled points
+  // ======================
+
+  std::vector<Cell*> cells;
+  for (auto& cell : index.heap) { cells.push_back(&cell); }
+  std::sort(cells.begin(), cells.end(), [](const Cell* a, const Cell* b) { return a->distance < b->distance; });
+
+  for (const auto cell : cells)
   {
-    auto cell = cells_to_display[j];
-    double dist = cell_distance[j];
-    int n = cell_npoints[j];
+    if (!cell->visible) continue;
+    if (k > max_points_to_display) break;
 
-    int factor = std::floor(dist/(zrange*4))+1;
-    //int factor = 1;
+    double dist = cell->distance;
+    float factor = cell->factor;
+    int npoints = cell->idx.size();
+    int ndisplay = (double)npoints*factor;
 
-    //printf("    camera to cell %d: %.1f, factor %d\n", j, dist, factor);
-
-    for (auto i : index.heap[cell].idx)
+    for (int j = 0 ; j < ndisplay ; j++)
     {
-      if (factor > 1 && i % factor != 0) continue;
+      int i = cell->idx[j];
 
       float px = x(i)-xcenter;
       float py = y(i)-ycenter;
@@ -228,26 +284,19 @@ bool Drawer::draw()
           glColor3ub(r(i), g(i), b(i));
         else
           glColor3ub(r(id(i)-1), g(id(i)-1), b(id(i)-1));
-
         break;
       case Attribute::Distance:
         glColor3ub((dmax-dist)/(dmax-dmin)*255, 0, 255-(dmax-dist)/(dmax-dmin)*255);
         break;
       case Attribute::Ratio:
-        if (factor == 1) glColor3ub(0, 138, 255);
-        else if (factor == 2) glColor3ub(0, 255, 0);
-        else if (factor == 3) glColor3ub(255, 138, 0);
-        else if (factor == 4) glColor3ub(255, 0, 0);
-        else if (factor == 5) glColor3ub(138, 0, 0);
-        else if (factor == 6) glColor3ub(70, 0, 0);
-        else glColor3ub(45, 0, 0);
+        glColor3ub((1.0f-factor)*255, 0, factor*255);
         break;
       }
 
       glVertex3d(px, py, pz);
       k++;
     }
-  }*/
+  }
 
   glEnd();
 
@@ -272,11 +321,9 @@ bool Drawer::draw()
   glVertex3f(minx-xcenter, miny-ycenter, minz+20+10);  // End point of Y axis
   glEnd();
 
-  glFlush();
-
   camera.changed = false;
 
-  printf("Displayed %lu/%u cells %d/%lu points (%.1f\%)\n", nc, index.ncells, k, x.size(), (double)k/(double)x.size()*100);
+  printf("Displayed %d/%u cells %d/%lu points (%.1f\%)\n", nc, index.ncells, k, x.size(), (double)k/(double)x.size()*100);
 
   return true;
 }

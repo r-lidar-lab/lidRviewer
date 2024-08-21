@@ -102,7 +102,7 @@ void GridPartition::build(const Rcpp::NumericVector x, const Rcpp::NumericVector
   // Create a registry for the grid indexation
   // =========================================
 
-  ncells = 1000;
+  ncells = 100;
   double cres = std::sqrt(area/ncells);
 
   xmin = ROUNDANY(xmin - 0.5 * vres, vres);
@@ -141,7 +141,7 @@ void GridPartition::build(const Rcpp::NumericVector x, const Rcpp::NumericVector
 
   std::vector<int> index(x.size());
   std::iota(index.begin(), index.end(), 0);
-  shuffle(index, 50000);
+  shuffle(index, 5000000);
 
   for (auto i : index)
   {

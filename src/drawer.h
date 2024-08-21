@@ -18,9 +18,11 @@ class Drawer
      bool draw();
      void setPointSize(float);
      void setAttribute(Attribute x) { attr = x; };
+     void display_hide_spataial_index() { draw_index = !draw_index; };
      Camera camera;
 
   private:
+    bool draw_index;
     int npoints;
     float size;
     double minx;

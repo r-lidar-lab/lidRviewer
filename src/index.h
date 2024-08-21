@@ -39,7 +39,7 @@ struct Cell
   double min;
   double max;
   double distance;
-  int factor;
+  float factor;
   bool visible;
   std::vector<int> idx;
 };

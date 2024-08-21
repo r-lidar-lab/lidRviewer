@@ -83,6 +83,10 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
           drawer->setAttribute(Attribute::Ratio);
           drawer->camera.changed = true;
           break;
+        case SDLK_q:
+          drawer->display_hide_spataial_index();
+          drawer->camera.changed = true;
+          break;
         default:
           drawer->camera.OnKeyboard(event.key);
         break;
@@ -127,12 +131,11 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
       //printf("Try draw\n");
       if (drawer->draw())
       {
-        //printf("Update windows\n");
+        glFlush();
         SDL_GL_SwapWindow(window);
       }
 
       last_time = current_time;
-
     }
     else
     {
