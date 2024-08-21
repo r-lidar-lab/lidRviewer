@@ -5,7 +5,7 @@
 #define WH 600
 
 // [[Rcpp::export]]
-void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r, IntegerVector g, IntegerVector b, IntegerVector id, float size = 2)
+void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r, IntegerVector g, IntegerVector b, IntegerVector id, float size = 4)
 {
   bool run = true;
 

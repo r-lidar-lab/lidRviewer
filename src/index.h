@@ -6,12 +6,41 @@
 
 #define INFD std::numeric_limits<double>::infinity();
 
+struct Voxel
+{
+  int i, j, k;
+  Voxel() : i(0), j(0), k(0) {}
+  Voxel(int i, int j, int k) : i(i), j(j), k(k) {}
+  size_t hash() const
+  {
+    // Create individual hashes for x and y
+    size_t hashi = std::hash<int>{}(i);
+    size_t hashj = std::hash<int>{}(j);
+    size_t hashk = std::hash<int>{}(k);
+
+    // Combine the individual hashes using a hash combiner
+    size_t seed = 0;
+    seed ^= hashi + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= hashj + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= hashk + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    return seed;
+  };
+  bool operator==(const Voxel& other) const { return i == other.i && j == other.j && k == other.k; };
+};
+
+struct VoxelHash
+{
+  std::size_t operator()(const Voxel& voxel) const { return voxel.hash() ;}
+};
+
 struct Cell
 {
-  Cell()  { min = INFD ; max = -INFD; };
+  Cell()  { min = INFD ; max = -INFD; distance = 0; factor = 0; visible = false; };
   double min;
   double max;
-
+  double distance;
+  int factor;
+  bool visible;
   std::vector<int> idx;
 };
 /*
@@ -33,6 +62,7 @@ public:
   double xmin,ymin,xmax,ymax,zmin,zmax;
   double xres, yres, zres;
   double area, volume;
+  std::vector<Cell> preview_points;
   std::vector<Cell> heap;
 
   int get_cell(double, double, double);
@@ -42,122 +72,5 @@ private:
 
   void build(const Rcpp::NumericVector, const Rcpp::NumericVector, const Rcpp::NumericVector);
 };
-
-inline GridPartition::GridPartition()
-{
-}
-
-inline GridPartition::GridPartition(const Rcpp::NumericVector x, const Rcpp::NumericVector y, const Rcpp::NumericVector z)
-{
-  if (x.size() != y.size())
-    Rcpp::stop("Internal error in spatial index: x and y have different sizes."); // # nocov
-
-  if (x.size() != z.size())
-    Rcpp::stop("Internal error in spatial index: x and z have different sizes."); // # nocov
-
-  // Number of points
-  npoints = x.size();
-
-  build(x,y,z);
-}
-
-inline void GridPartition::build(const Rcpp::NumericVector x, const Rcpp::NumericVector y,  const Rcpp::NumericVector z)
-{
-  //if (npoints == 0)
-  //  Rcpp::stop("Internal error in spatial index: impossible to build an index with 0 points."); // # nocov
-
-  // Compute the bounding box
-  xmin =  INFD;
-  xmax = -INFD;
-  ymin =  INFD;
-  ymax = -INFD;
-  zmin =  INFD;
-  zmax = -INFD;
-
-  for (auto i = 0 ; i < x.size() ; i++)
-  {
-    if (x[i] < xmin) xmin = x[i];
-    if (x[i] > xmax) xmax = x[i];
-    if (y[i] < ymin) ymin = y[i];
-    if (y[i] > ymax) ymax = y[i];
-    if (z[i] < zmin) zmin = z[i];
-    if (z[i] > zmax) zmax = z[i];
-  }
-
-  double buf = 1;
-  xmin -= buf;
-  xmax += buf;
-  ymin -= buf;
-  ymax += buf;
-  zmin -= buf;
-  zmax += buf;
-
-  // Historically the spatial index was a quadtree defined by a depth
-  // The depth is still used to compute the number of cells
-  ncells = 1000;
-
-  // Compute some indicator of shape
-  double xrange = xmax - xmin;
-  double yrange = ymax - ymin;
-  double zrange = zmax - zmin;
-  double xyratio = xrange/yrange;
-  double xzratio = xrange/zrange;
-  //double yzratio = yrange/zrange;
-
-  // Compute the number of rows and columns in such a way that there is approximately
-  // the number of wanted cells but the organization of the cell is well balanced
-  // so the resolutions on x-y are close. We want:
-  // ncols/nrows = xyratio
-  // ncols*nrows = ncells
-  ncols = std::round(std::sqrt(ncells*xyratio));
-  if (ncols <= 0) ncols = 1;
-  nrows = std::round(ncols/xyratio);
-  if (nrows <= 0) nrows = 1;
-  nlayers = 1;
-
-  ncells = ncols*nrows*nlayers;
-
-  xres = xrange / (double)ncols;
-  yres = yrange / (double)nrows;
-  zres = zrange / (double)nlayers;
-
-  printf("ncells = %d res = %.1lf, %.1lf, %.1lf\n", ncells, xres, yres, zres);
-
-  area = xrange * yrange;
-  volume = area * zrange;
-
-  heap.resize(ncells);
-  for (auto i = 0 ; i < x.size() ; i++)
-  {
-    int idx = get_cell(x[i], y[i], z[i]);
-    Cell& cell = heap[idx];
-    if (cell.max < z[i]) cell.max = z[i];
-    if (cell.min > z[i]) cell.min = z[i];
-    cell.idx.push_back(i);
-  }
-}
-
-inline int GridPartition::get_cell(double x, double y, double z)
-{
-  int col = std::floor((x - xmin) / xres);
-  int row = std::floor((ymax - y) / yres);
-  int lay = std::floor((z - zmin) / zres);
-  if (row < 0 || row > (int)nrows-1 || col < 0 || col > (int)ncols-1 || lay < 0 || lay > (int)nlayers-1)
-    Rcpp::stop("Internal error in spatial index: point out of the range."); // # nocov
-  int cell = lay * nrows * ncols + row * ncols + col;
-  if (cell < 0 || cell >= (int)ncells)
-    Rcpp::stop("Internal error in spatial index: cell out of the range."); // # nocov
-  return cell;
-}
-
-inline void GridPartition::xyz_from_cell(int cell, float& x, float& y, float& z)
-{
-  int col = cell%ncols;
-  int row = std::floor(cell/ncols);
-
-  x = xmin + ((col+0.5) * xres);
-  y = ymax - ((row+0.5) * yres);
-  z = (zmax+zmin)/2;
-}
 
 #endif

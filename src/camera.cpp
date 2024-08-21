@@ -259,8 +259,6 @@ void Camera::look()
   x = CameraPos[0];
   y = CameraPos[1];
   z = CameraPos[2];
-
-  printf("cam [%.1lf, %.1lf, %.1lf]\n", x, y, z);
 }
 
 bool Camera::see(float px, float py, float pz)

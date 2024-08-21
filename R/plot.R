@@ -29,7 +29,7 @@
 #' id = sample(1:10, 1000, replace = TRUE)
 #' plot_xyzcol(x, y, z, col, id)
 #' }
-plot_xyzcol <- function(x, y, z, col, id = NULL, size = 2)
+plot_xyzcol <- function(x, y, z, col, id = NULL, size = 4)
 {
   col = grDevices::col2rgb(col)
   plot_xyzrgb(x, y, z, col[1,], col[2,], col[3,], id, size)
@@ -38,7 +38,7 @@ plot_xyzcol <- function(x, y, z, col, id = NULL, size = 2)
 #' @aliases plot
 #' @rdname plot
 #' @export
-plot_xyzrgb <- function(x, y, z, r, g, b, id = NULL, size = 2)
+plot_xyzrgb <- function(x, y, z, r, g, b, id = NULL, size = 4)
 {
   xtxt = deparse(substitute(x))
   ytxt = deparse(substitute(y))

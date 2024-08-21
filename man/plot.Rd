@@ -6,9 +6,9 @@
 \alias{plot_xyzrgb}
 \title{Display big 3D point clouds}
 \usage{
-plot_xyzcol(x, y, z, col, id = NULL, size = 2)
+plot_xyzcol(x, y, z, col, id = NULL, size = 4)
 
-plot_xyzrgb(x, y, z, r, g, b, id = NULL, size = 2)
+plot_xyzrgb(x, y, z, r, g, b, id = NULL, size = 4)
 }
 \arguments{
 \item{x}{numeric vector of x coordinates}
