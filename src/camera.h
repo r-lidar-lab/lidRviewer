@@ -1,6 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include "Frustum.h"
 #include <SDL2/SDL.h>
 
 class Camera
@@ -20,7 +21,6 @@ class Camera
     void setDeltaXYZ(double dx, double dy, double dz);
     void setDistance(double);
 
-    float angle(float x, float y, float z);
     bool see(float x, float y, float z);
 
     bool changed;
@@ -41,6 +41,9 @@ class Camera
     SDL_Cursor * _hand1;
     SDL_Cursor * _hand2;
     SDL_Cursor * _move;
+
+private:
+    CFrustum frustum;
 };
 
 #endif //CAMERA_H

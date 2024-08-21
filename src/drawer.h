@@ -9,17 +9,16 @@
 
 using namespace Rcpp;
 
-enum Attribute{Z, Distance, Ratio, Angle};
+enum Attribute{Z, Distance, Ratio};
 
 class Drawer
 {
   public:
     Drawer(NumericVector, NumericVector, NumericVector, IntegerVector, IntegerVector, IntegerVector, IntegerVector);
-    ~Drawer();
-    Camera * camera;
      bool draw();
      void setPointSize(float);
      void setAttribute(Attribute x) { attr = x; };
+     Camera camera;
 
   private:
     int npoints;

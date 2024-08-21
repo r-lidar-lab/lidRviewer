@@ -2,8 +2,12 @@
 #include <GL/glu.h>
 #include <cmath>
 #include "sdlglutils.h"
+#include "Frustum.h"
 #include <Rcpp.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 Camera::Camera()
 {
@@ -243,58 +247,24 @@ void Camera::look()
   glRotated(angleZ,0,0,1);
   glRotated(90, 0, 0, 1);
 
+  frustum.CalculateFrustum();
 
+  GLfloat viewMatrix[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, viewMatrix);
 
-  // Convert angles from degrees to radians
-  double alphay_rad = angleY * M_PI / 180.0;
-  double alphaz_rad = angleZ * M_PI / 180.0 * -1;
+  glm::mat4 ConversionMatrix = glm::make_mat4(viewMatrix);
+  glm::vec4 cameraPos4 = glm::inverse(ConversionMatrix) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+  glm::vec3 CameraPos = glm::vec3(cameraPos4);
 
+  x = CameraPos[0];
+  y = CameraPos[1];
+  z = CameraPos[2];
 
-  double dx = deltaX*cos(alphaz_rad) + deltaY*sin(alphaz_rad);
-  double dy = deltaY*cos(alphaz_rad) + deltaX*sin(alphaz_rad);
-  /*if (angleZ < 90) { dx *= -1.0; dy *= -1.0; }
-  else if (angleZ < 180) { dx *= 1.0; dy *= -1.0; }
-  else if (angleZ < 270) { dx *= -1.0; dy *= 1.0; }
-  else if (angleZ <= 360) { dx *= -1.0; dy *= -1.0; }*/
-
-  // Calculate the coordinates of the camera
-  x = distance*sin(M_PI/2-alphay_rad)*cos(alphaz_rad) + dx;
-  y = distance*sin(M_PI/2-alphay_rad)*sin(alphaz_rad) + dy;
-  z = distance*cos(M_PI/2-alphay_rad);
-
-  printf("  Δ [%.2f %.2f], δ [%.2f %.2f], α [%.2f, %.2f]\n", deltaX, deltaY, dx, dy, angleY, angleZ);
-  printf("  Camera distance = %2.f coordinates = (%.2f %.2f %.2f)\n", distance, x, y, z);
-}
-
-float Camera::angle(float px, float py, float pz)
-{
-  // Calculate vectors AB and BC
-  float AB[3] = { (px+deltaX)-x, (py+deltaY)-y, (pz+deltaZ)-z };
-  float BC[3] = { -x, -y, -z };
-
-  // Calculate the dot product of AB and BC
-  double dot = AB[0] * BC[0] + AB[1] * BC[1] + AB[2] * BC[2];
-
-  // Calculate the magnitudes of AB and BC
-  double magAB = sqrt(AB[0] * AB[0] + AB[1] * AB[1] + AB[2] * AB[2]);
-  double magBC = sqrt(BC[0] * BC[0] + BC[1] * BC[1] + BC[2] * BC[2]);
-
-  // Calculate the cosine of the angle between AB and BC
-  double cosTheta = dot / (magAB * magBC);
-
-  // Calculate the angle in radians
-  double angleRadians = acos(cosTheta);
-
-  // Convert the angle to degrees
-  double angle = angleRadians * (180.0 / M_PI);
-
-  if (angle < 0) angle *= -1;
-
-  return angle;
+  printf("cam [%.1lf, %.1lf, %.1lf]\n", x, y, z);
 }
 
 bool Camera::see(float px, float py, float pz)
 {
-  return angle(px, py, pz) < 60;
+  return frustum.PointInFrustum(px, py, pz);
 }
 

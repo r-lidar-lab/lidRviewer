@@ -48,9 +48,9 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
   glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
   Drawer *drawer = new Drawer(x, y, z, r, g, b, id);
-  drawer->camera->setRotateSensivity(0.3);
-  drawer->camera->setZoomSensivity(10);
-  drawer->camera->setPanSensivity(1);
+  drawer->camera.setRotateSensivity(0.3);
+  drawer->camera.setZoomSensivity(10);
+  drawer->camera.setPanSensivity(1);
   drawer->setPointSize(size);
 
   last_time = SDL_GetTicks();
@@ -73,38 +73,34 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
           break;
         case SDLK_d:
           drawer->setAttribute(Attribute::Distance);
-          drawer->camera->changed = true;
+          drawer->camera.changed = true;
           break;
         case SDLK_z:
           drawer->setAttribute(Attribute::Z);
-          drawer->camera->changed = true;
+          drawer->camera.changed = true;
           break;
         case SDLK_f:
           drawer->setAttribute(Attribute::Ratio);
-          drawer->camera->changed = true;
-          break;
-        case SDLK_a:
-          drawer->setAttribute(Attribute::Angle);
-          drawer->camera->changed = true;
+          drawer->camera.changed = true;
           break;
         default:
-          drawer->camera->OnKeyboard(event.key);
+          drawer->camera.OnKeyboard(event.key);
         break;
         }
         break;
 
       case SDL_MOUSEMOTION:
         //printf("Mouse motion\n");
-        drawer->camera->OnMouseMotion(event.motion);
+        drawer->camera.OnMouseMotion(event.motion);
         break;
 
       case SDL_MOUSEBUTTONUP:
       case SDL_MOUSEBUTTONDOWN:
-        drawer->camera->OnMouseEvent(event.button, SDL_MouseWheelEvent{}); // Pass an empty SDL_MouseWheelEvent
+        drawer->camera.OnMouseEvent(event.button, SDL_MouseWheelEvent{}); // Pass an empty SDL_MouseWheelEvent
         break;
 
       case SDL_MOUSEWHEEL:
-        drawer->camera->OnMouseEvent(SDL_MouseButtonEvent{}, event.wheel); // Pass an empty SDL_MouseButtonEvent
+        drawer->camera.OnMouseEvent(SDL_MouseButtonEvent{}, event.wheel); // Pass an empty SDL_MouseButtonEvent
         break;
 
       case SDL_WINDOWEVENT:
@@ -117,7 +113,7 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
           glMatrixMode(GL_PROJECTION);
           glLoadIdentity();
           gluPerspective(70, (double)width / height, 0.1, 10000);
-          drawer->camera->changed = true;
+          drawer->camera.changed = true;
         }
         break;
       }

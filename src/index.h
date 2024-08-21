@@ -2,10 +2,18 @@
 #define GP_H
 
 #include <Rcpp.h>
+#include <limits>
 
-#define XYINF 99999999999;
-#define ZINF 2147483640;
+#define INFD std::numeric_limits<double>::infinity();
 
+struct Cell
+{
+  Cell()  { min = INFD ; max = -INFD; };
+  double min;
+  double max;
+
+  std::vector<int> idx;
+};
 /*
  * Spatial index using a grid-based indexation. The grid-based indexation
  * can be extended with multiple layers to become a voxel-based indexation.
@@ -25,7 +33,7 @@ public:
   double xmin,ymin,xmax,ymax,zmin,zmax;
   double xres, yres, zres;
   double area, volume;
-  std::vector<std::vector<int>> heap;
+  std::vector<Cell> heap;
 
   int get_cell(double, double, double);
   void xyz_from_cell(int cell, float&, float&, float&);
@@ -59,12 +67,12 @@ inline void GridPartition::build(const Rcpp::NumericVector x, const Rcpp::Numeri
   //  Rcpp::stop("Internal error in spatial index: impossible to build an index with 0 points."); // # nocov
 
   // Compute the bounding box
-  xmin =  XYINF;
-  xmax = -XYINF;
-  ymin =  XYINF;
-  ymax = -XYINF;
-  zmin =  ZINF;
-  zmax = -ZINF;
+  xmin =  INFD;
+  xmax = -INFD;
+  ymin =  INFD;
+  ymax = -INFD;
+  zmin =  INFD;
+  zmax = -INFD;
 
   for (auto i = 0 ; i < x.size() ; i++)
   {
@@ -121,8 +129,11 @@ inline void GridPartition::build(const Rcpp::NumericVector x, const Rcpp::Numeri
   heap.resize(ncells);
   for (auto i = 0 ; i < x.size() ; i++)
   {
-    int cell = get_cell(x[i], y[i], z[i]);
-    heap[cell].push_back(i);
+    int idx = get_cell(x[i], y[i], z[i]);
+    Cell& cell = heap[idx];
+    if (cell.max < z[i]) cell.max = z[i];
+    if (cell.min > z[i]) cell.min = z[i];
+    cell.idx.push_back(i);
   }
 }
 

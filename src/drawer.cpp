@@ -39,22 +39,16 @@ Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerVector 
   zcenter = (maxz+minz)/2;
   double distance = sqrt((maxx-minx)*(maxx-minx)+(maxy-miny)*(maxy-miny));
 
-  this->size = 1;
+  this->size = 5;
 
-  this->camera = new Camera();
-  this->camera->setDistance(distance);
-  this->camera->setPanSensivity(distance*0.001);
-  this->camera->setZoomSensivity(distance*0.05);
-}
-
-Drawer::~Drawer()
-{
-  delete camera;
+  this->camera.setDistance(distance);
+  this->camera.setPanSensivity(distance*0.001);
+  this->camera.setZoomSensivity(distance*0.05);
 }
 
 bool Drawer::draw()
 {
-  if (!camera->changed)  return false;
+  if (!camera.changed)  return false;
 
   // Immediate mode. Should be modernized.
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -62,7 +56,7 @@ bool Drawer::draw()
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  camera->look();
+  camera.look();
 
   int n_points_to_display = 0;
   int max_points_to_display = 2000000;
@@ -78,7 +72,7 @@ bool Drawer::draw()
   cell_factor.reserve(index.ncells);
 
   glLineWidth(2.0f);
-  glPointSize(5.0f);
+  glPointSize(size);
 
   // Draw the X axis (red)
   glColor3f(1.0f, 0.0f, 0.0f);
@@ -102,42 +96,60 @@ bool Drawer::draw()
   glEnd();
 
   // Check the cells
-  for (auto cell = 0 ; cell < index.ncells ; cell++)
+  for (auto i = 0 ; i < index.ncells ; i++)
   {
+    const Cell& cell = index.heap[i];
+    if (cell.idx.size() == 0) continue;
+
     float cx, cy, cz;
-    index.xyz_from_cell(cell, cx, cy, cz);
+    index.xyz_from_cell(i, cx, cy, cz);
+    cz = cell.min;
 
     cx -= xcenter;
     cy -= ycenter;
     cz -= zcenter;
 
-    //printf("cell %d: (%.1f, %.1f, %.1f)\n", cell, cx, cy, cz);
-    bool visible = camera->see(cx,cy,cz);
+    //bool visible = camera.see(cx, cy, cz);
+
+    // Define the half-size of the cell, assuming square or rectangular cells
+    float half_width = index.xres / 2.0f;
+    float half_height = index.yres / 2.0f;
+
+    // Calculate the coordinates of the four edge points
+    float edge1x = cx - half_width, edge1y = cy - half_height;
+    float edge2x = cx + half_width, edge2y = cy - half_height;
+    float edge3x = cx - half_width, edge3y = cy + half_height;
+    float edge4x = cx + half_width, edge4y = cy + half_height;
+
+    // Check if any of the four edge points are visible
+    bool visible = camera.see(edge1x, edge1y, cz) ||
+      camera.see(edge2x, edge2y, cz) ||
+      camera.see(edge3x, edge3y, cz) ||
+      camera.see(edge4x, edge4y, cz);
 
     if (visible)
     {
-      n_points_to_display += index.heap[cell].size();
-      double dx = (cx+camera->deltaX-camera->x);
-      double dy = (cy+camera->deltaY-camera->y);
-      double dz = (cz+camera->deltaZ-camera->z);
+      n_points_to_display += cell.idx.size();
+      double dx = (cx+camera.deltaX-camera.x);
+      double dy = (cy+camera.deltaY-camera.y);
+      double dz = (cz+camera.deltaZ-camera.z);
       double distance = sqrt(dx*dx+dy*dy+dz*dz);
 
-      cell_npoints.push_back(index.heap[cell].size());
-      cells_to_display.push_back(cell);
+      cell_npoints.push_back(n_points_to_display);
+      cells_to_display.push_back(i);
       cell_distance.push_back(distance);
     }
 
     // Draw this quad
     GLfloat size = index.xres;
-    GLfloat z = minz;
     GLfloat halfSize = size / 2.0f;
 
     // Updated vertices based on center and size
     GLfloat vertices[] = {
-      cx - halfSize, cy - halfSize, z,  // Bottom-left corner
-      cx + halfSize, cy - halfSize, z,  // Bottom-right corner
-      cx + halfSize, cy + halfSize, z,  // Top-right corner
-      cx - halfSize, cy + halfSize, z   // Top-left corner
+      cx - halfSize, cy - halfSize, cz,  // Bottom-left corner
+      cx + halfSize, cy - halfSize, cz,  // Bottom-right corner
+      cx + halfSize, cy + halfSize, cz,  // Top-right corner
+      cx - halfSize, cy + halfSize, cz   // Top-left corner
     };
 
     glBegin(GL_LINE_LOOP);
@@ -171,14 +183,14 @@ bool Drawer::draw()
     double dist = cell_distance[j];
     int n = cell_npoints[j];
 
-    //int factor = std::floor(dist/(zrange*4))+1;
-    int factor = 1;
+    int factor = std::floor(dist/(zrange*4))+1;
+    //int factor = 1;
 
     //printf("    camera to cell %d: %.1f, factor %d\n", j, dist, factor);
 
-    for (auto i : index.heap[cell])
+    for (auto i : index.heap[cell].idx)
     {
-      //if (factor > 1 && i % factor != 0) continue;
+      if (factor > 1 && i % factor != 0) continue;
 
       float px = x(i)-xcenter;
       float py = y(i)-ycenter;
@@ -197,14 +209,6 @@ bool Drawer::draw()
       case Attribute::Distance:
         glColor3ub((dmax-dist)/(dmax-dmin)*255, 0, 255-(dmax-dist)/(dmax-dmin)*255);
         break;
-      case Attribute::Angle:
-      {
-        float angle = camera->angle(px, py, pz);
-        float amax = 90;
-        float amin = 0;
-        glColor3ub((amax-angle)/(amax-amin)*255, 0, 255-(amax-angle)/(amax-amin)*255);
-        break;
-      }
       case Attribute::Ratio:
         if (factor == 1) glColor3ub(0, 138, 255);
         else if (factor == 2) glColor3ub(0, 255, 0);
@@ -224,7 +228,7 @@ bool Drawer::draw()
   glEnd();
   glFlush();
 
-  camera->changed = false;
+  camera.changed = false;
 
   printf("Displayed %lu/%u cells %d/%lu points (%.2f)\n", cells_to_display.size(), index.ncells, k, x.size(), (double)k/(double)x.size());
 
@@ -244,7 +248,7 @@ void Drawer::setPointSize(float size)
  float py = y(i)-ycenter;
  float pz = z(i)-zcenter;
 
- if (camera->see(px, py, pz))
+ if (camera.see(px, py, pz))
  glColor3ub(0, 255, 0);
  else
  glColor3ub(255, 0, 0);
@@ -256,6 +260,6 @@ void Drawer::setPointSize(float size)
  glEnd();
  glFlush();
 
- camera->changed = false;
+ camera.changed = false;
  return true;*/
 
