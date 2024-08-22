@@ -109,7 +109,7 @@ void GridPartition::build(const Rcpp::NumericVector x, const Rcpp::NumericVector
   // Create a registry for the grid indexation
   // =========================================
 
-  ncells = 10;
+  ncells = 1000;
   double cres = std::sqrt(area/ncells);
 
   xmin = ROUNDANY(xmin - 0.5 * vres, vres);

@@ -7,7 +7,10 @@
 // [[Rcpp::export]]
 void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r, IntegerVector g, IntegerVector b, IntegerVector id, float size = 4)
 {
+  const float zNear = 1;
+  const float zFar = 100000;
   bool run = true;
+  bool postprod = false;
 
   SDL_Event event;
   const Uint32 time_per_frame = 1000 / FPS;
@@ -30,7 +33,7 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(70, (double)width / height, 0.1, 100000);
+  gluPerspective(70, (double)width / height, zNear, zFar);
 
   glEnable(GL_DEPTH_TEST);              // Enable depth testing for z-culling
   glDepthFunc(GL_LEQUAL);               // Set the type of depth-test
@@ -87,6 +90,10 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
           drawer->display_hide_spataial_index();
           drawer->camera.changed = true;
           break;
+        case SDLK_p:
+          postprod = !postprod;
+          drawer->camera.changed = true;
+          break;
         default:
           drawer->camera.OnKeyboard(event.key);
         break;
@@ -116,7 +123,7 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
           glViewport(0, 0, width, height);
           glMatrixMode(GL_PROJECTION);
           glLoadIdentity();
-          gluPerspective(70, (double)width / height, 0.1, 10000);
+          gluPerspective(70, (double)width / height, zNear, zFar);
           drawer->camera.changed = true;
         }
         break;
@@ -128,7 +135,6 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
 
     if (elapsed_time > time_per_frame)
     {
-      //printf("Try draw\n");
       if (drawer->draw())
       {
         glFlush();
@@ -139,7 +145,6 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
     }
     else
     {
-      //printf("Delay\n");
       SDL_Delay(time_per_frame - elapsed_time);
     }
   }
@@ -150,3 +155,5 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
   SDL_Quit();
   return;
 }
+
+
