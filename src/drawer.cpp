@@ -20,28 +20,28 @@ Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerVector 
   this->maxy = max(y);
   this->maxz = mean(z)*2-minz;
 
-  auto start = std::chrono::high_resolution_clock::now();
+  this->dmin = INFD;
+  this->dmax = -INFD
 
-  index = GridPartition(x,y,z);
+  this->index = GridPartition(x,y,z);
 
-  auto end = std::chrono::high_resolution_clock::now();
+  this->attr = Attribute::Z;
+  this->draw_index = false;
+  this->max_points_to_display = 1000000;
 
-  // Calculate the duration
-  std::chrono::duration<double> duration = end - start;
+  this->pp.reserve(this->max_points_to_display*1.1);
 
-  // Output the duration in seconds
-  std::cout << "Time taken for indexation: " << duration.count() << " seconds" << std::endl;
-
-  attr = Attribute::Z;
-  draw_index = false;
-
-  xcenter = (maxx+minx)/2;
-  ycenter = (maxy+miny)/2;
-  zcenter = (maxz+minz)/2;
-  double distance = sqrt((maxx-minx)*(maxx-minx)+(maxy-miny)*(maxy-miny));
+  this->xcenter = (maxx+minx)/2;
+  this->ycenter = (maxy+miny)/2;
+  this->zcenter = (maxz+minz)/2;
+  this->xrange = maxx-minx;
+  this->yrange = maxy-miny;
+  this->zrange = maxz-minz;
+  this->range = std::max(xrange, yrange);
 
   this->size = 5.0;
 
+  double distance = sqrt(xrange*xrange+yrange*yrange);
   this->camera.setDistance(distance);
   this->camera.setPanSensivity(distance*0.001);
   this->camera.setZoomSensivity(distance*0.05);
@@ -51,76 +51,47 @@ bool Drawer::draw()
 {
   if (!camera.changed)  return false;
 
-  // Immediate mode. Should be modernized.
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  auto start = std::chrono::high_resolution_clock::now();
 
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);   // Immediate mode. Should be modernized.
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-
-  camera.look();
-
-  int n_points_to_display = 0;
-  int max_points_to_display = 2000000;
-  float zrange = maxz-minz;
-
   glLineWidth(2.0f);
   glPointSize(this->size);
 
-  // ==========================
-  // Check the cells visibility
-  // ==========================
+  camera.look(); // Reposition the camera after rotation and translation of the scene;
 
-  for (auto i = 0 ; i < index.ncells ; i++)
+  auto start_query = std::chrono::high_resolution_clock::now();
+
+  compute_cell_visibility();
+  query_rendered_point();
+
+  auto end_query = std::chrono::high_resolution_clock::now();
+  auto start_rendering = std::chrono::high_resolution_clock::now();
+
+  if (draw_index)
   {
-    Cell& cell = index.heap[i];
-    Cell& pcell = index.preview_points[i];
-
-    // compute the distance of the cell to the camera
-    // ----------------------------------------------
-
-    float cx, cy, cz;
-
-    index.xyz_from_cell(i, cx, cy, cz);
-
-    cx -= xcenter;
-    cy -= ycenter;
-    cz = cell.min;
-    cz -= zcenter;
-
-    double dx = (cx-camera.x);
-    double dy = (cy-camera.y);
-    double dz = (cz-camera.z);
-
-    cell.distance = sqrt(dx*dx+dy*dy+dz*dz);
-    pcell.distance = cell.distance;
-
-    // Check the cells visibility
-    // --------------------------
-
-    // Define the half-size of the cell, assuming square or rectangular cells
-    float half_width = index.xres / 2.0f;
-    float half_height = index.yres / 2.0f;
-
-    // Calculate the coordinates of the four edge points
-    float edge1x = cx - half_width, edge1y = cy - half_height;
-    float edge2x = cx + half_width, edge2y = cy - half_height;
-    float edge3x = cx - half_width, edge3y = cy + half_height;
-    float edge4x = cx + half_width, edge4y = cy + half_height;
-
-    // Check if any of the four edge points are visible
-    bool visible = camera.see(edge1x, edge1y, cz) || camera.see(edge2x, edge2y, cz) || camera.see(edge3x, edge3y, cz) || camera.see(edge4x, edge4y, cz);
-
-    cell.visible = visible;
-    pcell.visible = visible;
-
-    if (visible)
+    for (auto i = 0 ; i < index.ncells ; i++)
     {
-      n_points_to_display += cell.idx.size();
-      n_points_to_display += pcell.idx.size();
-    }
+      Cell& cell = index.heap[i];
+      if (!cell.visible || cell.preview.size() == 0) continue;
 
-    if (draw_index && cell.idx.size() > 0)
-    {
+      float cx, cy, cz;
+
+      index.xyz_from_cell(i, cx, cy, cz);
+
+      cx -= xcenter;
+      cy -= ycenter;
+      cz = cell.min;
+      cz -= zcenter;
+
+      float half_width = index.xres / 2.0f;
+      float half_height = index.yres / 2.0f;
+
+      float edge1x = cx - half_width, edge1y = cy - half_height;
+      float edge2x = cx + half_width, edge2y = cy - half_height;
+      float edge3x = cx - half_width, edge3y = cy + half_height;
+      float edge4x = cx + half_width, edge4y = cy + half_height;
       // Updated vertices based on center and size
       GLfloat vertices[] = {
         edge1x, edge1y, cz,
@@ -130,175 +101,27 @@ bool Drawer::draw()
       };
 
       glBegin(GL_LINE_LOOP);
-
-      if (visible)
-        glColor3f(1.0f, 0.0f, 0.0f);
-      else
-        glColor3f(0.25f, 0.0f, 0.0f);
-
+      glColor3f(1.0f, 0.0f, 0.0f);
       for (int i = 0; i < 12; i += 3)
-      {
         glVertex3f(vertices[i], vertices[i + 1], vertices[i + 2]);
-      }
       glEnd();
     }
   }
 
-  double dmin = INFD;
-  double dmax = -INFD
-  for (auto& cell : index.heap)
-  {
-    if (!cell.visible) continue;
-    if (cell.distance < dmin) dmin = cell.distance;
-    if (cell.distance > dmax) dmax = cell.distance;
-  }
-
-  printf("dmin %.1lf, dmax %.1lf\n", (maxx-minx)/2, (maxx-minx)*3);
-
-  // Decimation parameters
-  float fmin = 0.01f;
-  float fmax = 1.0f;
-  int nsampled = 0;
-  for (auto i = 0 ; i < index.ncells ; i++)
-  {
-    Cell& cell = index.heap[i];
-    Cell& pcell = index.preview_points[i];
-
-    if (cell.visible == false) continue;
-
-    float factor = 0;
-    double dmin = (maxx-minx)/2;
-    double dmax = (maxx-minx);
-    if (cell.distance <= dmin)
-      factor = 1.0f;
-    else if (cell.distance >= dmax)
-      factor = 0.0f;
-    else
-      factor = 1.0f - (cell.distance - dmin) / (dmax - dmin);
-
-    cell.factor = factor;
-    pcell.factor = factor;
-
-    nsampled += cell.idx.size() * cell.factor;
-
-    printf(" distance = %.1lf factor %.3f, nsampled %d\n", cell.distance, cell.factor, nsampled);
-  }
-
-  if (nsampled > max_points_to_display)
-  {
-    for (auto i = 0 ; i < index.ncells ; i++)
-    {
-      Cell& cell = index.heap[i];
-      Cell& pcell = index.preview_points[i];
-
-      if (cell.visible == false) continue;
-
-      cell.factor = cell.factor * (double)max_points_to_display/(double)nsampled;
-      pcell.factor = cell.factor;
-
-      printf(" distance = %.1lf factor %.3f\n", cell.distance, cell.factor);
-    }
-  }
-
-  //printf("dmin = %.1lf, dmax = %.1lf\n", dmin, dmax);
-
-  // ======================
-  // Display preview points
-  // ======================
-
   glBegin(GL_POINTS);
 
-  int k = 0;
-  int nc = 0;
-  for (const auto& cell : index.preview_points)
+  for (auto p : pp)
   {
-    if (!cell.visible) continue;
-
-    nc++;
-
-    double dist = cell.distance;
-    int n = cell.idx.size();
-    float factor = cell.factor;
-
-    //printf("    camera to cell %d: %.1f, factor %d\n", j, dist, factor);
-
-    for (auto i : cell.idx)
-    {
-      float px = x(i)-xcenter;
-      float py = y(i)-ycenter;
-      float pz = z(i)-zcenter;
-
-      // Coloring
-      switch (attr)
-      {
-      case Attribute::Z:
-        if (id(0) == 0)
-          glColor3ub(r(i), g(i), b(i));
-        else
-          glColor3ub(r(id(i)-1), g(id(i)-1), b(id(i)-1));
-        break;
-      case Attribute::Distance:
-        glColor3ub((dmax-dist)/(dmax-dmin)*255, 0, 255-(dmax-dist)/(dmax-dmin)*255);
-        break;
-      case Attribute::Ratio:
-        glColor3ub((1.0f-factor)*255, 0, factor*255);
-        break;
-      }
-
-      glVertex3d(px, py, pz);
-      k++;
-    }
-  }
-
-  // ======================
-  // Display sampled points
-  // ======================
-
-  std::vector<Cell*> cells;
-  for (auto& cell : index.heap) { cells.push_back(&cell); }
-  std::sort(cells.begin(), cells.end(), [](const Cell* a, const Cell* b) { return a->distance < b->distance; });
-
-  for (const auto cell : cells)
-  {
-    if (!cell->visible) continue;
-    if (k > max_points_to_display) break;
-
-    double dist = cell->distance;
-    float factor = cell->factor;
-    int npoints = cell->idx.size();
-    int ndisplay = (double)npoints*factor;
-
-    for (int j = 0 ; j < ndisplay ; j++)
-    {
-      int i = cell->idx[j];
-
-      float px = x(i)-xcenter;
-      float py = y(i)-ycenter;
-      float pz = z(i)-zcenter;
-
-      // Coloring
-      switch (attr)
-      {
-      case Attribute::Z:
-        if (id(0) == 0)
-          glColor3ub(r(i), g(i), b(i));
-        else
-          glColor3ub(r(id(i)-1), g(id(i)-1), b(id(i)-1));
-        break;
-      case Attribute::Distance:
-        glColor3ub((dmax-dist)/(dmax-dmin)*255, 0, 255-(dmax-dist)/(dmax-dmin)*255);
-        break;
-      case Attribute::Ratio:
-        glColor3ub((1.0f-factor)*255, 0, factor*255);
-        break;
-      }
-
-      glVertex3d(px, py, pz);
-      k++;
-    }
+    int i = p.pindex;
+    float px = x(i)-xcenter;
+    float py = y(i)-ycenter;
+    float pz = z(i)-zcenter;
+    glColor3ub(p.r, p.g, p.b);
+    glVertex3d(px, py, pz);
   }
 
   glEnd();
+  auto end_rendering = std::chrono::high_resolution_clock::now();
 
   // Draw the X axis (red)
   glColor3f(1.0f, 0.0f, 0.0f);
@@ -323,15 +146,223 @@ bool Drawer::draw()
 
   camera.changed = false;
 
-  printf("Displayed %d/%u cells %d/%lu points (%.1f\%)\n", nc, index.ncells, k, x.size(), (double)k/(double)x.size()*100);
+  auto end = std::chrono::high_resolution_clock::now();
+
+  // Calculate the duration
+  std::chrono::duration<double> total_duration = end - start;
+  std::chrono::duration<double> query_duration = end_query - start_query;
+  std::chrono::duration<double> rendering_duration = end_rendering - start_rendering;
+
+  printf("Displayed %dk/%ldk points (%.1f\%)\n", (int)pp.size()/1000, x.size()/1000, (double)pp.size()/(double)x.size()*100);
+  printf("Full Rendering: %.3f seconds (%.1f fps)\n", total_duration.count(), 1.0f/total_duration.count());
+  printf("Cloud rendering: %.3f seconds (%.1f fps, %.1f\%)\n", rendering_duration.count(), 1.0f/rendering_duration.count(), rendering_duration.count()/total_duration.count()*100);
+  printf("Spatial query: %.3f seconds (%.1f fps %.1f\%)\n", query_duration.count(), 1.0f/query_duration.count(), query_duration.count()/total_duration.count()*100);
+  printf("\n");
 
   return true;
 }
 
+void Drawer::compute_cell_visibility()
+{
+  int nvisible = 0;
+
+  for (auto i = 0 ; i < index.ncells ; i++)
+  {
+    Cell& cell = index.heap[i];
+
+    // compute the distance of the cell to the camera
+    // ----------------------------------------------
+
+    float cx, cy, cz;
+
+    index.xyz_from_cell(i, cx, cy, cz);
+
+    cx -= xcenter;
+    cy -= ycenter;
+    cz = cell.min;
+    cz -= zcenter;
+
+    double dx = (cx-camera.x);
+    double dy = (cy-camera.y);
+    double dz = (cz-camera.z);
+
+    cell.distance = sqrt(dx*dx+dy*dy+dz*dz);
+
+    // Check the cells visibility
+    // --------------------------
+
+    // Define the half-size of the cell, assuming square or rectangular cells
+    float half_width = index.xres / 2.0f;
+    float half_height = index.yres / 2.0f;
+
+    // Calculate the coordinates of the four edge points
+    float edge1x = cx - half_width, edge1y = cy - half_height;
+    float edge2x = cx + half_width, edge2y = cy - half_height;
+    float edge3x = cx - half_width, edge3y = cy + half_height;
+    float edge4x = cx + half_width, edge4y = cy + half_height;
+
+    // Check if any of the four edge points are visible
+    bool visible = camera.see(edge1x, edge1y, cz) || camera.see(edge2x, edge2y, cz) || camera.see(edge3x, edge3y, cz) || camera.see(edge4x, edge4y, cz);
+
+    cell.visible = visible;
+
+    if (visible) nvisible++;
+  }
+
+  printf("Visibility: %d/%lu visible cells\n", nvisible, index.heap.size());
+
+  // Compute the range of distance from camera to cell
+
+  dmin = INFD;
+  dmax = -INFD
+  for (const auto& cell : index.heap)
+  {
+    if (!cell.visible) continue;
+    if (cell.distance < dmin) dmin = cell.distance;
+    if (cell.distance > dmax) dmax = cell.distance;
+  }
+
+  return;
+}
+
+void Drawer::query_rendered_point()
+{
+  pp.clear();
+
+  // Estimate the number of point to display if we plot all the visible points
+
+  int n_points_to_display = 0;
+  for (const auto& cell : index.heap)
+  {
+    if (cell.visible)
+    {
+      n_points_to_display += cell.preview.size();
+      n_points_to_display += cell.points.size();
+    }
+  }
+
+  // Estimate the cell decimation parameters
+
+  printf("dmin %.1lf, dmax %.1lf\n\n", dmin, dmax);
+
+  float tmin = 2;
+  float tmax = 6;
+  int nsampled = 0;
+  for (auto& cell : index.heap)
+  {
+    if (!cell.visible) continue;
+
+    double distance = cell.distance/dmin;
+
+    float factor = 0;
+    if (distance <= tmin)
+      factor = 1.0f;
+    else if (distance >= tmin)
+      factor = 0.0f;
+    else
+      factor = 1.0f - (distance - tmin) / (tmax - tmin);
+
+    cell.factor = factor;
+
+    nsampled += cell.points.size() * cell.factor;
+
+    printf("d = %.1lf, dr = %.1lf factor %.3f, nsampled %d\n", cell.distance, distance, cell.factor, nsampled);
+  }
+
+  printf("\n");
+
+  // If we sample more point that we are allowing we decrease the factor
+
+  if (nsampled > max_points_to_display)
+  {
+    float factor2 = (double)max_points_to_display/(double)nsampled;
+    for (auto& cell : index.heap)
+    {
+      if (!cell.visible) continue;
+      cell.factor *= factor2;
+      printf(" distance = %.1lf factor %.3f\n", cell.distance, cell.factor);
+    }
+  }
+
+  // Query the preview points
+
+  for (const auto& cell : index.heap)
+  {
+    if (!cell.visible) continue;
+
+    double dist = cell.distance;
+    int n = cell.preview.size();
+    float factor = cell.factor;
+
+    //printf("    camera to cell %d: %.1f, factor %d\n", j, dist, factor);
+
+    for (auto i : cell.preview)
+    {
+      RenderedPoint p;
+      p.pindex = i;
+      switch (attr)
+      {
+        case Attribute::Z:
+          if (id(0) == 0)
+            p.set_color(r(i), g(i), b(i));
+          else
+            p.set_color(r(id(i)-1), g(id(i)-1), b(id(i)-1));
+          break;
+        case Attribute::Distance:
+          p.set_color((dmax-dist)/(dmax-dmin)*255, 0, 255-(dmax-dist)/(dmax-dmin)*255);
+          break;
+        case Attribute::Ratio:
+          p.set_color((1.0f-factor)*255, 0, factor*255);
+          break;
+      }
+
+      pp.emplace_back(p);
+    }
+  }
+
+  // Query the sampled points
+
+  for (const auto& cell : index.heap)
+  {
+    if (!cell.visible) continue;
+    //if (k > max_points_to_display) break;
+
+    double dist = cell.distance;
+    float factor = cell.factor;
+    int npoints = cell.points.size();
+    int ndisplay = (double)npoints*factor;
+
+    for (int j = 0 ; j < ndisplay ; j++)
+    {
+      int i = cell.points[j];
+
+      RenderedPoint p;
+      p.pindex = i;
+
+      switch (attr)
+      {
+        case Attribute::Z:
+          if (id(0) == 0)
+            p.set_color(r(i), g(i), b(i));
+          else
+            p.set_color(r(id(i)-1), g(id(i)-1), b(id(i)-1));
+          break;
+        case Attribute::Distance:
+          p.set_color((dmax-dist)/(dmax-dmin)*255, 0, 255-(dmax-dist)/(dmax-dmin)*255);
+          break;
+        case Attribute::Ratio:
+          p.set_color((1.0f-factor)*255, 0, factor*255);
+          break;
+      }
+
+      pp.emplace_back(p);
+    }
+  }
+}
+
 void Drawer::setPointSize(float size)
 {
-  if (size > 0)
-    this->size = size;
+  if (size > 0) this->size = size;
 }
 
 

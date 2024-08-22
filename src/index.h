@@ -41,7 +41,8 @@ struct Cell
   double distance;
   float factor;
   bool visible;
-  std::vector<int> idx;
+  std::vector<int> preview;
+  std::vector<int> points;
 };
 /*
  * Spatial index using a grid-based indexation. The grid-based indexation
@@ -62,7 +63,6 @@ public:
   double xmin,ymin,xmax,ymax,zmin,zmax;
   double xres, yres, zres;
   double area, volume;
-  std::vector<Cell> preview_points;
   std::vector<Cell> heap;
 
   int get_cell(double, double, double);

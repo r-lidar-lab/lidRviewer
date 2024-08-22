@@ -1,5 +1,6 @@
 #include "index.h"
 
+#include <chrono>
 #include <random>
 
 #define ROUNDANY(x,m) round((x) / m) * m
@@ -26,6 +27,8 @@ GridPartition::GridPartition()
 
 GridPartition::GridPartition(const Rcpp::NumericVector x, const Rcpp::NumericVector y, const Rcpp::NumericVector z)
 {
+  auto start = std::chrono::high_resolution_clock::now();
+
   if (x.size() != y.size())
     Rcpp::stop("Internal error in spatial index: x and y have different sizes."); // # nocov
 
@@ -36,6 +39,10 @@ GridPartition::GridPartition(const Rcpp::NumericVector x, const Rcpp::NumericVec
   npoints = x.size();
 
   build(x,y,z);
+
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> duration = end - start;
+  std::cout << "Time taken for indexation: " << duration.count() << " seconds" << std::endl;
 }
 
 void GridPartition::build(const Rcpp::NumericVector x, const Rcpp::NumericVector y,  const Rcpp::NumericVector z)
@@ -102,7 +109,7 @@ void GridPartition::build(const Rcpp::NumericVector x, const Rcpp::NumericVector
   // Create a registry for the grid indexation
   // =========================================
 
-  ncells = 100;
+  ncells = 10;
   double cres = std::sqrt(area/ncells);
 
   xmin = ROUNDANY(xmin - 0.5 * vres, vres);
@@ -123,7 +130,6 @@ void GridPartition::build(const Rcpp::NumericVector x, const Rcpp::NumericVector
   nlayers = 1;
 
   ncells = ncols*nrows*nlayers;
-  preview_points.resize(ncells);
   heap.resize(ncells);
 
   xres = xrange / (double)ncols;
@@ -141,7 +147,10 @@ void GridPartition::build(const Rcpp::NumericVector x, const Rcpp::NumericVector
 
   std::vector<int> index(x.size());
   std::iota(index.begin(), index.end(), 0);
-  shuffle(index, 5000000);
+  //shuffle(index, 5000000);
+  std::mt19937 rng(0);
+  std::shuffle(index.begin(), index.end(), rng);
+
 
   for (auto i : index)
   {
@@ -153,21 +162,20 @@ void GridPartition::build(const Rcpp::NumericVector x, const Rcpp::NumericVector
     int idx = get_cell(x[i], y[i], z[i]);
     bool vox_occupied = bitregistry[key];
 
-    Cell* cell;
+    Cell& cell = heap[idx];;
 
     if (!vox_occupied)
     {
       bitregistry[key] = true;
-      cell = &preview_points[idx];
+      cell.preview.push_back(i);
     }
     else
     {
-      cell = &heap[idx];
+      cell.points.push_back(i);
     }
 
-    if (cell->max < z[i]) cell->max = z[i];
-    if (cell->min > z[i]) cell->min = z[i];
-    cell->idx.push_back(i);
+    if (cell.max < z[i]) cell.max = z[i];
+    if (cell.min > z[i]) cell.min = z[i];
   }
 }
 
