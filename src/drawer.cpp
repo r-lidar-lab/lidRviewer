@@ -23,11 +23,11 @@ Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerVector 
   this->dmin = INFD;
   this->dmax = -INFD
 
-  this->index = GridPartition(x,y,z);
+  this->index = EPToctree(&x[0], &y[0], &z[0], x.size());
 
   this->attr = Attribute::Z;
   this->draw_index = false;
-  this->max_points_to_display = 2000000;
+  this->max_points_to_display = 3000000;
 
   this->pp.reserve(this->max_points_to_display*1.1);
 
@@ -71,52 +71,52 @@ bool Drawer::draw()
 
   if (draw_index)
   {
-    for (auto i = 0 ; i < index.ncells ; i++)
+    for (const auto& octant : visible_octants)
     {
-      Cell& cell = index.heap[i];
-      if (!cell.visible || cell.preview.size() == 0) continue;
+      float centerX = octant->bbox[0] - xcenter;
+      float centerY = octant->bbox[1] - ycenter;
+      float centerZ = octant->bbox[2] - zcenter;
+      float halfSize = octant->bbox[3];
 
-      float cx, cy, cz;
+      float x0 = centerX - halfSize;
+      float x1 = centerX + halfSize;
+      float y0 = centerY - halfSize;
+      float y1 = centerY + halfSize;
+      float z0 = centerZ - halfSize;
+      float z1 = centerZ + halfSize;
 
-      index.xyz_from_cell(i, cx, cy, cz);
+      glBegin(GL_LINES);
 
-      cx -= xcenter;
-      cy -= ycenter;
-      cz = cell.min;
-      cz -= zcenter;
+      // Bottom face
+      glVertex3f(x0, y0, z0); glVertex3f(x1, y0, z0);
+      glVertex3f(x1, y0, z0); glVertex3f(x1, y0, z1);
+      glVertex3f(x1, y0, z1); glVertex3f(x0, y0, z1);
+      glVertex3f(x0, y0, z1); glVertex3f(x0, y0, z0);
 
-      float half_width = index.xres / 2.0f;
-      float half_height = index.yres / 2.0f;
+      // Top face
+      glVertex3f(x0, y1, z0); glVertex3f(x1, y1, z0);
+      glVertex3f(x1, y1, z0); glVertex3f(x1, y1, z1);
+      glVertex3f(x1, y1, z1); glVertex3f(x0, y1, z1);
+      glVertex3f(x0, y1, z1); glVertex3f(x0, y1, z0);
 
-      float edge1x = cx - half_width, edge1y = cy - half_height;
-      float edge2x = cx + half_width, edge2y = cy - half_height;
-      float edge3x = cx - half_width, edge3y = cy + half_height;
-      float edge4x = cx + half_width, edge4y = cy + half_height;
-      // Updated vertices based on center and size
-      GLfloat vertices[] = {
-        edge1x, edge1y, cz,
-        edge2x, edge2y, cz,
-        edge4x, edge4y, cz,
-        edge3x, edge3y, cz
-      };
+      // Vertical edges
+      glVertex3f(x0, y0, z0); glVertex3f(x0, y1, z0);
+      glVertex3f(x1, y0, z0); glVertex3f(x1, y1, z0);
+      glVertex3f(x1, y0, z1); glVertex3f(x1, y1, z1);
+      glVertex3f(x0, y0, z1); glVertex3f(x0, y1, z1);
 
-      glBegin(GL_LINE_LOOP);
-      glColor3f(1.0f, 0.0f, 0.0f);
-      for (int i = 0; i < 12; i += 3)
-        glVertex3f(vertices[i], vertices[i + 1], vertices[i + 2]);
       glEnd();
     }
   }
 
   glBegin(GL_POINTS);
 
-  for (auto p : pp)
+  for (auto i : pp)
   {
-    int i = p.pindex;
-    float px = x(i)-xcenter;
-    float py = y(i)-ycenter;
-    float pz = z(i)-zcenter;
-    glColor3ub(p.r, p.g, p.b);
+    float px = x[i]-xcenter;
+    float py = y[i]-ycenter;
+    float pz = z[i]-zcenter;
+    glColor3ub(r[i], g[i], b[i]);
     glVertex3d(px, py, pz);
   }
 
@@ -162,9 +162,25 @@ bool Drawer::draw()
   return true;
 }
 
+bool Drawer::is_visible(const EPToctant& octant)
+{
+  return camera.see(octant.bbox[0]-xcenter, octant.bbox[1]-ycenter, octant.bbox[2]-zcenter, octant.bbox[3]);
+}
+
 void Drawer::compute_cell_visibility()
 {
-  int nvisible = 0;
+  visible_octants.clear();
+
+  EPTkey root = EPTkey::root();
+  traverse_and_collect(root, visible_octants);
+
+  std::sort(visible_octants.begin(), visible_octants.end(), [](const EPToctant* a, const EPToctant* b)
+  {
+    return a->screen_size > b->screen_size;  // Sort in descending order
+  });
+
+  //printf("n visible octant %lu\n", visible_octants.size());
+  /*int nvisible = 0;
 
   for (auto i = 0 ; i < index.ncells ; i++)
   {
@@ -222,16 +238,69 @@ void Drawer::compute_cell_visibility()
     if (cell.distance > dmax) dmax = cell.distance;
   }
 
-  return;
+  return;*/
 }
+
+void Drawer::traverse_and_collect(const EPTkey& key, std::vector<EPToctant*>& visible_octants)
+{
+  auto it = index.registry.find(key);
+  if (it == index.registry.end()) return;
+
+  GLint viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+  int screenWidth = viewport[2];
+  int screenHeight = viewport[3];
+
+  float fov = 45;
+  float slope = std::tan(fov/2.0f);
+
+  double cx = camera.x;
+  double cy = camera.y;
+  double cz = camera.z;
+
+  EPToctant& octant = it->second;
+
+  // Check if the current octant is visible
+  if (is_visible(octant))
+  {
+    // Calculate the screen size or other criteria for visibility
+    float x = octant.bbox[0] - xcenter;
+    float y = octant.bbox[1] - ycenter;
+    float z = octant.bbox[2] - zcenter;
+    float radius = octant.bbox[3] * 2 * 1.414f;
+
+    float distance = std::sqrt((cx - x) * (cx - x) + (cy - y) * (cy - y) + (cz - z) * (cz - z));
+    octant.screen_size = (screenHeight / 2.0f) * (radius / (slope * distance));
+
+    if (octant.screen_size > 200)
+    {
+      visible_octants.push_back(&octant);
+
+      // Recurse into children
+      std::array<EPTkey, 8> children_keys = key.get_children();
+      for (const EPTkey& child_key  : children_keys)
+      {
+        traverse_and_collect(child_key, visible_octants);
+      }
+    }
+  }
+}
+
 
 void Drawer::query_rendered_point()
 {
   pp.clear();
 
+  unsigned int n = 0;
+  for (const auto octant : visible_octants)
+  {
+    n += octant->point_idx.size();
+    pp.insert(pp.end(), octant->point_idx.begin(), octant->point_idx.end());
+    if (n > max_points_to_display) break;
+  }
   // Estimate the number of point to display if we plot all the visible points
 
-  int n_points_to_display = 0;
+  /*int n_points_to_display = 0;
   for (const auto& cell : index.heap)
   {
     if (cell.visible)
@@ -357,7 +426,7 @@ void Drawer::query_rendered_point()
 
       pp.emplace_back(p);
     }
-  }
+  }*/
 }
 
 void Drawer::setPointSize(float size)

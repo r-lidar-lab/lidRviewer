@@ -4,8 +4,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <Rcpp.h>
+#include "Octree.h"
 #include "camera.h"
-#include "index.h"
+//#include "index.h"
 
 using namespace Rcpp;
 
@@ -30,16 +31,20 @@ public:
   void setAttribute(Attribute x) { attr = x; };
   void display_hide_spataial_index() { draw_index = !draw_index; };
   Camera camera;
+  EPToctree index;
+
+  float size;
 
 private:
+  bool is_visible(const EPToctant& octant);
   void compute_cell_visibility();
   void query_rendered_point();
+  void traverse_and_collect(const EPTkey& key, std::vector<EPToctant*>& visible_octants);
 
-private:
   bool draw_index;
   int npoints;
   int max_points_to_display;
-  float size;
+
   double minx;
   double miny;
   double minz;
@@ -62,9 +67,9 @@ private:
   IntegerVector g;
   IntegerVector b;
   IntegerVector id;
-  GridPartition index;
   Attribute attr;
-  std::vector<RenderedPoint> pp;
+  std::vector<int> pp;
+  std::vector<EPToctant*> visible_octants;
 };
 
 #endif //DRAWER_H

@@ -22,7 +22,7 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
   SDL_Init(SDL_INIT_VIDEO);
 
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-  SDL_Window *window = SDL_CreateWindow("Point Cloud Viewer",
+  SDL_Window *window = SDL_CreateWindow("lidRviewer",
                                         SDL_WINDOWPOS_CENTERED,
                                         SDL_WINDOWPOS_CENTERED,
                                         width, height,
@@ -47,14 +47,18 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+  glEnable(GL_MULTISAMPLE);
+  glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
 
   glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
+
   Drawer *drawer = new Drawer(x, y, z, r, g, b, id);
-  drawer->camera.setRotateSensivity(0.3);
+  drawer->camera.setRotateSensivity(0.1);
   drawer->camera.setZoomSensivity(10);
   drawer->camera.setPanSensivity(1);
   drawer->setPointSize(size);
+
 
   last_time = SDL_GetTicks();
 
@@ -94,6 +98,16 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
           postprod = !postprod;
           drawer->camera.changed = true;
           break;
+        case SDLK_PLUS:
+        case SDLK_KP_PLUS:
+          drawer->size++;
+          drawer->camera.changed = true;
+          break;
+        case SDLK_MINUS:
+        case SDLK_KP_MINUS:
+          drawer->size--;
+          drawer->camera.changed = true;
+          break;
         default:
           drawer->camera.OnKeyboard(event.key);
         break;
@@ -101,7 +115,6 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
         break;
 
       case SDL_MOUSEMOTION:
-        //printf("Mouse motion\n");
         drawer->camera.OnMouseMotion(event.motion);
         break;
 
@@ -115,7 +128,6 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
         break;
 
       case SDL_WINDOWEVENT:
-        //printf("SDL windows event\n");
         if (event.window.event == SDL_WINDOWEVENT_RESIZED)
         {
           width = event.window.data1;
@@ -137,6 +149,8 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
     {
       if (drawer->draw())
       {
+        glShadeModel(GL_SMOOTH);
+
         glFlush();
         SDL_GL_SwapWindow(window);
       }

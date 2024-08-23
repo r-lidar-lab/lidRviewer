@@ -1,9 +1,12 @@
 #include "camera.h"
-#include <GL/glu.h>
-#include <cmath>
 #include "sdlglutils.h"
 #include "Frustum.h"
+
 #include <Rcpp.h>
+
+#include <GL/glu.h>
+
+#include <cmath>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
@@ -261,8 +264,8 @@ void Camera::look()
   z = CameraPos[2];
 }
 
-bool Camera::see(float px, float py, float pz)
+bool Camera::see(float px, float py, float pz, float hsize)
 {
-  return frustum.PointInFrustum(px, py, pz);
+  return frustum.CubeInFrustum(px, py, pz, hsize);
 }
 
