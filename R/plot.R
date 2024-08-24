@@ -1,38 +1,25 @@
 #' Display big 3D point clouds
 #'
-#' Display big 3D point clouds using rgl style. This function does no lag and can display
+#' Display aritrary large in memory 3D point clouds. This function does no lag and can display
 #' almost instantly millions of points. It is optimized to used the lowest possible memory
 #' and is capable of displaying gigabytes of points allocating only few megabyte of memory
 #'
-#' @param x numeric vector of x coordinates
-#' @param y numeric vector of y coordinates
-#' @param z numeric vector of z coordinates
-#' @param r integer vector of red components
-#' @param g integer vector of green components
-#' @param b integer vector of blue components
-#' @param col character vector of hexadecimal colors.
-#' @param id integer vector. Memory optimization. Instead of storing 3 vectors of integer
-#' and potentially storing duplicated entries it is possible to provide a short list of colors
-#' and refer to these color using a single set of integer used as id to the color.
-#' @param size the size of the points
-#' @aliases plot
-#' @rdname plot
-#' @useDynLib lidRviewer, .registration = TRUE
-#' @importFrom Rcpp evalCpp
+#' @param x A \code{LAS*} object from the lidR package
+#' @param y Unused (inherited from R base)
 #' @export
-#' @examples
-#' \dontrun{
-#' x = runif(1000, 0, 100)
-#' y = runif(1000, 0, 100)
-#' z = runif(1000, 0, 100)
-#' col = rainbow(10)
-#' id = sample(1:10, 1000, replace = TRUE)
-#' plot_xyzcol(x, y, z, col, id)
-#' }
-plot_xyzcol <- function(x, y, z, col, id = NULL, size = 4)
+#' @method plot LAS
+#' @importClassesFrom lidR LAS
+setGeneric("plot", function(x, y, ...) standardGeneric("plot"))
+
+#' @rdname plot
+setMethod("plot", signature(x = "LAS", y = "missing"), function(x, y, ...)
 {
-  col = grDevices::col2rgb(col)
-  plot_xyzrgb(x, y, z, col[1,], col[2,], col[3,], id, size)
+  plot.LAS(x, y, ...)
+})
+
+plot.LAS <- function(x, y, ...)
+{
+  lidRviewer(x@data)
 }
 
 #' @aliases plot
@@ -88,5 +75,7 @@ plot_xyzrgb <- function(x, y, z, r, g, b, id = NULL, size = 4)
   }
 
   message("Point cloud viewer must be closed before to run other R code")
-  plotxyz(x,y,z,r,g,b,id,size)
+
+  df = data.frame(X = x, Y = y, Z = z, R = r, G = g, B = b)
+  lidRviewer(df)
 }

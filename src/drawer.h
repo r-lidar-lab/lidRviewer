@@ -10,7 +10,7 @@
 
 using namespace Rcpp;
 
-enum Attribute{Z, Distance, Ratio};
+enum Attribute{Z, I, RGB, CLASS};
 
 struct RenderedPoint
 {
@@ -25,17 +25,19 @@ struct RenderedPoint
 class Drawer
 {
 public:
-  Drawer(NumericVector, NumericVector, NumericVector, IntegerVector, IntegerVector, IntegerVector, IntegerVector);
+  Drawer(DataFrame);
   bool draw();
   void setPointSize(float);
-  void setAttribute(Attribute x) { attr = x; };
+  void setAttribute(Attribute x);
   void display_hide_spataial_index() { draw_index = !draw_index; };
   Camera camera;
   EPToctree index;
 
-  float size;
+  float point_size;
+  bool lightning;
 
 private:
+  void eyes_dome_lightning();
   bool is_visible(const EPToctant& octant);
   void compute_cell_visibility();
   void query_rendered_point();
@@ -43,7 +45,7 @@ private:
 
   bool draw_index;
   int npoints;
-  int max_points_to_display;
+  int point_budget;
 
   double minx;
   double miny;
@@ -58,15 +60,21 @@ private:
   double yrange;
   double zrange;
   double range;
-  double dmin;
-  double dmax;
+  double minattr;
+  double maxattr;
+  double attrrange;
+
+  DataFrame df;
   NumericVector x;
   NumericVector y;
   NumericVector z;
   IntegerVector r;
   IntegerVector g;
   IntegerVector b;
-  IntegerVector id;
+
+  IntegerVector attri;
+  NumericVector attrd;
+
   Attribute attr;
   std::vector<int> pp;
   std::vector<EPToctant*> visible_octants;

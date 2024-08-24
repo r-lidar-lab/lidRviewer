@@ -1,56 +1,51 @@
-![Github](https://img.shields.io/badge/Github-0.1.0-green.svg) ![licence](https://img.shields.io/badge/Licence-GPL--3-blue.svg)
+![Github](https://img.shields.io/badge/Github-1.0.0-green.svg) ![licence](https://img.shields.io/badge/Licence-GPL--3-blue.svg)
 
-This is a point cloud viewer for R. The first goal of this package is to be an alternative backend to display point clouds in the [lidR](https://github.com/Jean-Romain/lidR) package in replacement of `rgl`. It is fully supported but one may consider that this package is under development (it works good enough to me but still have bugs).
+# lidRviewer
 
-`rgl` is an awesome package but has some difficulties displaying large point clouds. The `lidRviewer` package is able to display large point clouds consisting of several million points. So far I have tried it with over 30 million points and the display window remained fluid (smoothly pan, zoom and rotate).
+This is a point cloud viewer for R. The primary goal of this package is to serve as an alternative backend for displaying point clouds in the [lidR](https://github.com/Jean-Romain/lidR) package, replacing `rgl`.
 
-Advantage of `lidRviewer`:
+While `rgl` is a powerful package, it has some limitations when it comes to handling large point clouds. The `lidRviewer` package is designed to efficiently display arbitrarily large in-memory point clouds, with tested cases including over 130 million points.
 
-* Can easily handle more than 20 million points while `rgl` can struggle displaying a tenth of that.
-* Is much more memory efficient. It allocates only a small amount of additional memory while `rgl` may require gigabytes of memory.
+## Advantages of `lidRviewer`:
 
-Drawbacks
+* Capable of handling hundred millions of points efficiently if they fits in memory, unlike `rgl`, which may struggle with a few million.
+* More memory efficient: it requires only a small amount of additional memory, whereas `rgl` may need gigabytes to store a full copy of the point cloud.
+* Provides keyboard controls for changing coloring attributes and point size on-the-fly.
+* Features eyes-dome lighting for better visualization.
 
-* Blocks the R session. If the viewer windows is open, you can't use R for anything else. You must close the viewer windows first.
-* Can only display point clouds. No other feature. This is only a point cloud displayer so not intended as a replacement for `rgl`
+## Drawbacks:
+
+* Blocks the R session: while the viewer window is open, you cannot use R for other tasks. You must close the viewer window to resume normal R usage.
+* Limited functionality: only displays point clouds and does not offer additional features. It is not intended to replace `rgl` for other visualization needs and custom rendering.
 
 ## Installation
 
-### GNU/Linux
-
-```
-sudo apt-get install libsdl2-dev freeglut3-dev
-```
-
 ```r
-devtools::install_github("Jean-Romain/lidRviewer")
-```
-
-### Windows
-
-```r
-devtools::install_github("Jean-Romain/lidRviewer")
-```
-
-### MacOS
-
-```
-brew install sdl2 mesa mesa-glu
-```
-
-```r
-devtools::install_github("Jean-Romain/lidRviewer")
+devtools::install_github("lidRviewer", repos = 'https://r-lidar.r-universe.dev')
 ```
 
 ## Usage
 
+Use `library(lidRviewer)` after `library(lidR)`to overide the default `rgl` plot function from `lidR`.
+
 ```r
 library(lidR)
+library(lidRviewer)
 LASfile <- system.file("extdata", "Megaplot.laz", package="lidR")
 las <- readLAS(LASfile)
-plot(las, backend = "lidRviewer")
+plot(las)
 ```
 
 - Rotate with left mouse button
 - Zoom with mouse wheel
 - Pan with right mouse button
+- Keyboard <kbd>r</kbd> or <kbd>g</kbd> or <kbd>b</kbd> to color with RGB
+- Keyboard <kbd>z</kbd> to color with Z
+- Keyboard <kbd>i</kbd> to color with Intensity
+- Keyboard <kbd>c</kbd> to color with Classification
+- Keyboard <kbd>+</kbd> or <kbd>-</kbd> to change the point size
+- Keyboard <kbd>l</kbd> to enable/disable eyes-dome lightning
+
+## Technical details
+
+`lidRviewer` is based on [Markus Schultz thesis](https://www.cg.tuwien.ac.at/research/publications/2016/SCHUETZ-2016-POT/) with some adaptation and variation. One of the main difference is that Potree spatially indexes the point cloud in dedicated and optimized files on-disk file for an out-of-core rendering. `lidRviewer` on its side creates a nested octree on-the-fly on an in-memory `data.frame` without modifying the original data (not sorting, no data layout optimization).

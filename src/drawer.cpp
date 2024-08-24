@@ -1,15 +1,92 @@
 #include "drawer.h"
+#include "PSquare.h"
+
 #include <chrono>
 
-Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerVector r, IntegerVector g, IntegerVector b, IntegerVector id)
+const std::vector<std::array<unsigned char, 3>> zgradient = {
+  {0, 0, 255},
+  {0, 29, 252},
+  {0, 59, 250},
+  {0, 89, 248},
+  {0, 119, 246},
+  {0, 148, 244},
+  {0, 178, 242},
+  {0, 208, 240},
+  {0, 238, 238},
+  {31, 240, 208},
+  {63, 242, 178},
+  {95, 244, 148},
+  {127, 246, 118},
+  {159, 248, 89},
+  {191, 250, 59},
+  {223, 252, 29},
+  {255, 255, 0},
+  {255, 223, 0},
+  {255, 191, 0},
+  {255, 159, 0},
+  {255, 127, 0},
+  {255, 95, 0},
+  {255, 63, 0},
+  {255, 31, 0},
+  {255, 0, 0}
+};
+
+const std::vector<std::array<unsigned char, 3>> classcolor = {
+  {211, 211, 211}, // [1]
+  {211, 211, 211}, // [2]
+  {0,   0,   255}, // [3]
+  {50,  205, 50},  // [4]
+  {34,  139, 34},  // [5]
+  {0,   100, 0},   // [6]
+  {255, 0,   0},   // [7]
+  {255, 255, 0},   // [8]
+  {255, 255, 0},   // [9]
+  {100, 149, 237}, // [10]
+  {255, 255, 0},   // [11]
+  {51,  51,  51},  // [12]
+  {255, 255, 0},   // [13]
+  {255, 192, 203}, // [14]
+  {255, 192, 203}, // [15]
+  {160, 32,  240}, // [16]
+  {255, 192, 203}, // [17]
+  {255, 165, 0},   // [18]
+  {255, 255, 0}    // [19]
+};
+
+const std::vector<std::array<unsigned char, 3>> igradient = {
+  {255,   0,   0},  // [1]
+  {255,  14,   0},  // [2]
+  {255,  28,   0},  // [3]
+  {255,  42,   0},  // [4]
+  {255,  57,   0},  // [5]
+  {255,  71,   0},  // [6]
+  {255,  85,   0},  // [7]
+  {255,  99,   0},  // [8]
+  {255, 113,   0},  // [9]
+  {255, 128,   0},  // [10]
+  {255, 142,   0},  // [11]
+  {255, 156,   0},  // [12]
+  {255, 170,   0},  // [13]
+  {255, 184,   0},  // [14]
+  {255, 198,   0},  // [15]
+  {255, 213,   0},  // [16]
+  {255, 227,   0},  // [17]
+  {255, 241,   0},  // [18]
+  {255, 255,   0},  // [19]
+  {255, 255,  21},  // [20]
+  {255, 255,  64},  // [21]
+  {255, 255, 106},  // [22]
+  {255, 255, 149},  // [23]
+  {255, 255, 191},  // [24]
+  {255, 255, 234}   // [25]
+};
+
+Drawer::Drawer(DataFrame df)
 {
-  this->x = x;
-  this->y = y;
-  this->z = z;
-  this->r = r;
-  this->g = g;
-  this->b = b;
-  this->id = id;
+  this->df = df;
+  this->x = df["X"];
+  this->y = df["Y"];
+  this->z = df["Z"];
 
   this->npoints = x.length();
 
@@ -18,19 +95,7 @@ Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerVector 
   this->minz = min(z);
   this->maxx = max(x);
   this->maxy = max(y);
-  this->maxz = mean(z)*2-minz;
-
-  this->dmin = INFD;
-  this->dmax = -INFD
-
-  this->index = EPToctree(&x[0], &y[0], &z[0], x.size());
-
-  this->attr = Attribute::Z;
-  this->draw_index = false;
-  this->max_points_to_display = 3000000;
-
-  this->pp.reserve(this->max_points_to_display*1.1);
-
+  this->maxz = max(z);
   this->xcenter = (maxx+minx)/2;
   this->ycenter = (maxy+miny)/2;
   this->zcenter = (maxz+minz)/2;
@@ -39,12 +104,56 @@ Drawer::Drawer(NumericVector x, NumericVector y, NumericVector z, IntegerVector 
   this->zrange = maxz-minz;
   this->range = std::max(xrange, yrange);
 
-  this->size = 5.0;
+  this->index = EPToctree(&x[0], &y[0], &z[0], x.size());
+
+  this->draw_index = false;
+  this->point_budget = 3000000;
+  this->point_size = 5.0;
+  this->lightning = true;
+
+  this->pp.reserve(this->point_budget*1.1);
 
   double distance = sqrt(xrange*xrange+yrange*yrange);
   this->camera.setDistance(distance);
   this->camera.setPanSensivity(distance*0.001);
   this->camera.setZoomSensivity(distance*0.05);
+
+  setAttribute(Attribute::RGB);
+}
+
+void Drawer::setAttribute(Attribute x)
+{
+  if (x == Attribute::RGB && df.containsElementNamed("R"))
+  {
+    this->attr = x;
+    this->r = df["R"];
+    this->g = df["G"];
+    this->b = df["B"];
+  }
+  else if (x == Attribute::CLASS && df.containsElementNamed("Classification"))
+  {
+    this->attr = x;
+    this->attri = df["Classification"];
+  }
+  else if (x == Attribute::I && df.containsElementNamed("Intensity"))
+  {
+    this->attr = x;
+    this->attri = df["Intensity"];
+    PSquare p99(0.99);
+    for (const auto& i : attri) p99.addDataPoint(i);
+    this->minattr = minz;
+    this->maxattr = p99.getQuantile();
+    this->attrrange = maxattr - minattr;
+  }
+  else
+  {
+    PSquare p99(0.99);
+    for (const auto& pz : z) p99.addDataPoint(pz);
+    this->attr = Attribute::Z;
+    this->minattr = minz;
+    this->maxattr = p99.getQuantile();
+    this->attrrange = maxattr - minattr;
+  }
 }
 
 bool Drawer::draw()
@@ -57,7 +166,7 @@ bool Drawer::draw()
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   glLineWidth(2.0f);
-  glPointSize(this->size);
+  glPointSize(this->point_size);
 
   camera.look(); // Reposition the camera after rotation and translation of the scene;
 
@@ -69,8 +178,60 @@ bool Drawer::draw()
   auto end_query = std::chrono::high_resolution_clock::now();
   auto start_rendering = std::chrono::high_resolution_clock::now();
 
+  glBegin(GL_POINTS);
+
+  for (auto i : pp)
+  {
+    float px = x[i]-xcenter;
+    float py = y[i]-ycenter;
+    float pz = z[i]-zcenter;
+
+    switch (attr)
+    {
+      case Attribute::Z:
+      {
+        float nz = (std::clamp(z[i], minattr, maxattr) - minattr) / (attrrange);
+        int bin = std::min(static_cast<int>(nz * (zgradient.size() - 1)), static_cast<int>(zgradient.size() - 1));
+        auto& col = zgradient[bin];
+        glColor3ub(col[0], col[1], col[2]);
+        break;
+      }
+      case Attribute::RGB:
+      {
+        glColor3ub(r[i]/255, g[i]/255, b[i]/255);
+        break;
+      }
+      case Attribute::CLASS:
+      {
+        int classification = std::clamp(attri[i], 0, 19);
+        auto& col = classcolor[classification];
+        glColor3ub(col[0], col[1], col[2]);
+        break;
+      }
+      case Attribute::I:
+      {
+        float ni = (std::clamp(attri[i], (int)minattr, (int)maxattr) - (int)minattr) / (attrrange);
+        int bin = std::min(static_cast<int>(ni * (igradient.size() - 1)), static_cast<int>(igradient.size() - 1));
+        auto& col = igradient[bin];
+        glColor3ub(col[0], col[1], col[2]);
+        break;
+      }
+    }
+
+    glVertex3d(px, py, pz);
+  }
+
+  glEnd();
+
+  if (lightning)
+  {
+    eyes_dome_lightning();
+  }
+
   if (draw_index)
   {
+    glColor3f(1.0f, 1.0f, 1.0f);
+
     for (const auto& octant : visible_octants)
     {
       float centerX = octant->bbox[0] - xcenter;
@@ -109,20 +270,6 @@ bool Drawer::draw()
     }
   }
 
-  glBegin(GL_POINTS);
-
-  for (auto i : pp)
-  {
-    float px = x[i]-xcenter;
-    float py = y[i]-ycenter;
-    float pz = z[i]-zcenter;
-    glColor3ub(r[i], g[i], b[i]);
-    glVertex3d(px, py, pz);
-  }
-
-  glEnd();
-  auto end_rendering = std::chrono::high_resolution_clock::now();
-
   // Draw the X axis (red)
   glColor3f(1.0f, 0.0f, 0.0f);
   glBegin(GL_LINES);
@@ -146,6 +293,7 @@ bool Drawer::draw()
 
   camera.changed = false;
 
+  auto end_rendering = std::chrono::high_resolution_clock::now();
   auto end = std::chrono::high_resolution_clock::now();
 
   // Calculate the duration
@@ -160,6 +308,82 @@ bool Drawer::draw()
   printf("\n");
 
   return true;
+}
+
+void Drawer::eyes_dome_lightning()
+{
+  GLint viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+  int w = viewport[2];
+  int h = viewport[3];
+
+  std::vector< GLfloat > depth( w * h, 0 );
+  glReadPixels( 0, 0, w, h, GL_DEPTH_COMPONENT, GL_FLOAT, &depth[0] );
+
+  std::vector<GLubyte> colorBuffer(w * h * 3);
+  glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, &colorBuffer[0]);
+
+  const float zNear = 1;
+  const float zFar = 10000;
+
+  std::vector<GLfloat> worldLogDistances(w * h);
+  for (int i = 0; i < w * h; ++i)
+  {
+    GLfloat z = depth[i];           // Depth value from the depth buffer
+    GLfloat zNDC = 2.0f * z - 1.0f; // Convert depth value to Normalized Device Coordinate (NDC)
+    GLfloat zCamera = (2.0f * zNear * zFar) / (zFar + zNear - zNDC * (zFar - zNear)); // Convert NDC to camera space Z (real-world distance)
+    worldLogDistances[i] = std::log2(zCamera);  // Store the real-world log distance
+  }
+
+  // Define the 8 possible neighbor offsets in a 2D grid
+  /*std::vector<std::pair<int, int>> neighbors = {
+    {-1, -1}, {-1, 0}, {-1, 1},
+    { 0, -1},          { 0, 1},
+    { 1, -1}, { 1, 0}, { 1, 1}
+  };*/
+
+  // Define the 4 possible neighbor offsets in a 2D grid
+  std::vector<std::pair<int, int>> neighbors = {
+             {-1, 0},
+    { 0, -1},         { 0, 1},
+             { 1, 0},
+  };
+
+  // Iterate over each pixel to shade the rendering
+  float edlStrength = 10;
+  for (int y = 0; y < h; ++y)
+  {
+    for (int x = 0; x < w; ++x)
+    {
+      int idx = y * w + x;
+
+      // Find the maximum log depth among neighbors
+      GLfloat maxLogDepth = std::max(0.0f, worldLogDistances[idx]);
+
+      // Compute the response for the current pixel
+      GLfloat sum = 0.0f;
+      for (const auto& offset : neighbors)
+      {
+        int nx = x + offset.first;
+        int ny = y + offset.second;
+        if (nx >= 0 && nx < w && ny >= 0 && ny < h)
+        {
+          int nIdx = ny * w + nx;
+          sum += maxLogDepth - worldLogDistances[nIdx];
+        }
+      }
+
+      float response = sum/4;
+      float shade = std::exp(-response * 300.0 * edlStrength);
+      shade = 1-std::clamp(shade, 0.0f, 255.0f)/255.0f;
+
+      colorBuffer[idx * 3] *= shade;
+      colorBuffer[idx * 3 + 1] *= shade;
+      colorBuffer[idx * 3 + 2] *= shade;
+    }
+  }
+
+  glDrawPixels(w, h, GL_RGB, GL_UNSIGNED_BYTE, colorBuffer.data());
 }
 
 bool Drawer::is_visible(const EPToctant& octant)
@@ -178,67 +402,6 @@ void Drawer::compute_cell_visibility()
   {
     return a->screen_size > b->screen_size;  // Sort in descending order
   });
-
-  //printf("n visible octant %lu\n", visible_octants.size());
-  /*int nvisible = 0;
-
-  for (auto i = 0 ; i < index.ncells ; i++)
-  {
-    Cell& cell = index.heap[i];
-
-    // compute the distance of the cell to the camera
-    // ----------------------------------------------
-
-    float cx, cy, cz;
-
-    index.xyz_from_cell(i, cx, cy, cz);
-
-    cx -= xcenter;
-    cy -= ycenter;
-    cz = cell.min;
-    cz -= zcenter;
-
-    double dx = (cx-camera.x);
-    double dy = (cy-camera.y);
-    double dz = (cz-camera.z);
-
-    cell.distance = sqrt(dx*dx+dy*dy+dz*dz);
-
-    // Check the cells visibility
-    // --------------------------
-
-    // Define the half-size of the cell, assuming square or rectangular cells
-    float half_width = index.xres / 2.0f;
-    float half_height = index.yres / 2.0f;
-
-    // Calculate the coordinates of the four edge points
-    float edge1x = cx - half_width, edge1y = cy - half_height;
-    float edge2x = cx + half_width, edge2y = cy - half_height;
-    float edge3x = cx - half_width, edge3y = cy + half_height;
-    float edge4x = cx + half_width, edge4y = cy + half_height;
-
-    // Check if any of the four edge points are visible
-    bool visible = camera.see(edge1x, edge1y, cz) || camera.see(edge2x, edge2y, cz) || camera.see(edge3x, edge3y, cz) || camera.see(edge4x, edge4y, cz);
-
-    cell.visible = visible;
-
-    if (visible) nvisible++;
-  }
-
-  printf("Visibility: %d/%lu visible cells\n", nvisible, index.heap.size());
-
-  // Compute the range of distance from camera to cell
-
-  dmin = INFD;
-  dmax = -INFD
-  for (const auto& cell : index.heap)
-  {
-    if (!cell.visible) continue;
-    if (cell.distance < dmin) dmin = cell.distance;
-    if (cell.distance > dmax) dmax = cell.distance;
-  }
-
-  return;*/
 }
 
 void Drawer::traverse_and_collect(const EPTkey& key, std::vector<EPToctant*>& visible_octants)
@@ -296,142 +459,13 @@ void Drawer::query_rendered_point()
   {
     n += octant->point_idx.size();
     pp.insert(pp.end(), octant->point_idx.begin(), octant->point_idx.end());
-    if (n > max_points_to_display) break;
+    if (n > point_budget) break;
   }
-  // Estimate the number of point to display if we plot all the visible points
-
-  /*int n_points_to_display = 0;
-  for (const auto& cell : index.heap)
-  {
-    if (cell.visible)
-    {
-      n_points_to_display += cell.preview.size();
-      n_points_to_display += cell.points.size();
-    }
-  }
-
-  // Estimate the cell decimation parameters
-
-  printf("dmin %.1lf, dmax %.1lf\n\n", dmin, dmax);
-
-  float tmin = 3;
-  float tmax = 7;
-  int nsampled = 0;
-  for (auto& cell : index.heap)
-  {
-    if (!cell.visible) continue;
-
-    double distance = cell.distance/dmin;
-
-    float factor = 0;
-    if (distance <= tmin)
-      factor = 1.0f;
-    else if (distance >= tmax)
-      factor = 0.0f;
-    else
-      factor = 1.0f - (distance - tmin) / (tmax - tmin);
-
-    cell.factor = std::pow(factor, 6);
-
-    nsampled += cell.points.size() * cell.factor;
-
-    printf("d = %.1lf, dr = %.1lf factor %.3f, nsampled %d\n", cell.distance, distance, cell.factor, nsampled);
-  }
-
-  printf("\n");
-
-  // If we sample more point that we are allowing we decrease the factor
-
-  if (nsampled > max_points_to_display)
-  {
-    float factor2 = (double)max_points_to_display/(double)nsampled;
-    for (auto& cell : index.heap)
-    {
-      if (!cell.visible) continue;
-      cell.factor *= factor2;
-      printf(" distance = %.1lf factor %.3f\n", cell.distance, cell.factor);
-    }
-  }
-
-  // Query the preview points
-
-  for (const auto& cell : index.heap)
-  {
-    if (!cell.visible) continue;
-
-    double dist = cell.distance;
-    int n = cell.preview.size();
-    float factor = cell.factor;
-
-    //printf("    camera to cell %d: %.1f, factor %d\n", j, dist, factor);
-
-    for (auto i : cell.preview)
-    {
-      RenderedPoint p;
-      p.pindex = i;
-      switch (attr)
-      {
-        case Attribute::Z:
-          if (id(0) == 0)
-            p.set_color(r(i), g(i), b(i));
-          else
-            p.set_color(r(id(i)-1), g(id(i)-1), b(id(i)-1));
-          break;
-        case Attribute::Distance:
-          p.set_color((dmax-dist)/(dmax-dmin)*255, 0, 255-(dmax-dist)/(dmax-dmin)*255);
-          break;
-        case Attribute::Ratio:
-          p.set_color((1.0f-factor)*255, 0, factor*255);
-          break;
-      }
-
-      pp.emplace_back(p);
-    }
-  }
-
-  // Query the sampled points
-
-  for (const auto& cell : index.heap)
-  {
-    if (!cell.visible) continue;
-    //if (k > max_points_to_display) break;
-
-    double dist = cell.distance;
-    float factor = cell.factor;
-    int npoints = cell.points.size();
-    int ndisplay = (double)npoints*factor;
-
-    for (int j = 0 ; j < ndisplay ; j++)
-    {
-      int i = cell.points[j];
-
-      RenderedPoint p;
-      p.pindex = i;
-
-      switch (attr)
-      {
-        case Attribute::Z:
-          if (id(0) == 0)
-            p.set_color(r(i), g(i), b(i));
-          else
-            p.set_color(r(id(i)-1), g(id(i)-1), b(id(i)-1));
-          break;
-        case Attribute::Distance:
-          p.set_color((dmax-dist)/(dmax-dmin)*255, 0, 255-(dmax-dist)/(dmax-dmin)*255);
-          break;
-        case Attribute::Ratio:
-          p.set_color((1.0f-factor)*255, 0, factor*255);
-          break;
-      }
-
-      pp.emplace_back(p);
-    }
-  }*/
 }
 
 void Drawer::setPointSize(float size)
 {
-  if (size > 0) this->size = size;
+  if (size > 0) this->point_size = size;
 }
 
 

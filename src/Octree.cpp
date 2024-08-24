@@ -52,8 +52,6 @@ void EPToctant::insert(size_t idx, int cell)
   if (cell >= 0) occupancy.insert(cell); // cell = -1 means that recording the location of the point is useless (save memory)
 };
 
-typedef std::unordered_map<EPTkey, EPToctant, EPTKeyHasher> Registry;
-
 EPToctree::EPToctree(double* x, double* y, double* z, size_t n)
 {
   auto start = std::chrono::high_resolution_clock::now();
@@ -132,8 +130,7 @@ void EPToctree::compute_max_depth(size_t npts, size_t max_points_per_octant)
 
 bool EPToctree::insert(size_t i)
 {
-  // The octree is an std::unordered_map
-  Registry::iterator it;
+  std::unordered_map<EPTkey, EPToctant, EPTKeyHasher>::iterator it;
 
   // Search a place to insert the point
   int lvl = 0;
@@ -154,8 +151,9 @@ bool EPToctree::insert(size_t i)
     if (it == registry.end())
     {
       //printf("Registry add key %d-%d-%d-%d\n", key.x, key.y, key.z, key.d);
-      it = registry.insert({key, EPToctant()}).first;
-      set_bbox(key, it->second.bbox);
+      EPToctant node;
+      set_bbox(key, node.bbox);
+      it = registry.emplace(key, node).first;
     }
 
     auto it2 = it->second.occupancy.find(cell);
@@ -174,19 +172,16 @@ bool EPToctree::insert(size_t i)
 
 EPTkey EPToctree::get_key(double x, double y, double z, int depth) const
 {
-  int grid_size = (int)std::pow(2, depth);
+  int grid_size = 1 << depth;  // 2^depth
   double grid_resolution = (xmax - xmin) / grid_size;
 
-  int xi = (int)std::floor((x - xmin) / grid_resolution);
-  int yi = (int)std::floor((y - ymin) / grid_resolution);
-  int zi = (int)std::floor((z - zmin) / grid_resolution);
+  int xi = static_cast<int>((x - xmin) / grid_resolution);
+  int yi = static_cast<int>((y - ymin) / grid_resolution);
+  int zi = static_cast<int>((z - zmin) / grid_resolution);
 
-  if (xi < 0) xi = 0;
-  if (yi < 0) yi = 0;
-  if (zi < 0) zi = 0;
-  if (xi >= grid_size) xi = grid_size - 1;
-  if (yi >= grid_size) yi = grid_size - 1;
-  if (zi >= grid_size) zi = grid_size - 1;
+  xi = std::clamp(xi, 0, grid_size - 1);
+  yi = std::clamp(yi, 0, grid_size - 1);
+  zi = std::clamp(zi, 0, grid_size - 1);
 
   return EPTkey(depth, xi, yi, zi);
 }

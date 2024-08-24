@@ -10,26 +10,19 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// plotxyz
-void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r, IntegerVector g, IntegerVector b, IntegerVector id, float size);
-RcppExport SEXP _lidRviewer_plotxyz(SEXP xSEXP, SEXP ySEXP, SEXP zSEXP, SEXP rSEXP, SEXP gSEXP, SEXP bSEXP, SEXP idSEXP, SEXP sizeSEXP) {
+// lidRviewer
+void lidRviewer(DataFrame df);
+RcppExport SEXP _lidRviewer_lidRviewer(SEXP dfSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type z(zSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type r(rSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type g(gSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type b(bSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type id(idSEXP);
-    Rcpp::traits::input_parameter< float >::type size(sizeSEXP);
-    plotxyz(x, y, z, r, g, b, id, size);
+    Rcpp::traits::input_parameter< DataFrame >::type df(dfSEXP);
+    lidRviewer(df);
     return R_NilValue;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_lidRviewer_plotxyz", (DL_FUNC) &_lidRviewer_plotxyz, 8},
+    {"_lidRviewer_lidRviewer", (DL_FUNC) &_lidRviewer_lidRviewer, 1},
     {NULL, NULL, 0}
 };
 

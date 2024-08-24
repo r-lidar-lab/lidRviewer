@@ -5,12 +5,11 @@
 #define WH 600
 
 // [[Rcpp::export]]
-void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r, IntegerVector g, IntegerVector b, IntegerVector id, float size = 4)
+void lidRviewer(DataFrame df)
 {
   const float zNear = 1;
   const float zFar = 100000;
   bool run = true;
-  bool postprod = false;
 
   SDL_Event event;
   const Uint32 time_per_frame = 1000 / FPS;
@@ -53,11 +52,11 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
   glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
 
-  Drawer *drawer = new Drawer(x, y, z, r, g, b, id);
+  Drawer *drawer = new Drawer(df);
   drawer->camera.setRotateSensivity(0.1);
   drawer->camera.setZoomSensivity(10);
   drawer->camera.setPanSensivity(1);
-  drawer->setPointSize(size);
+  drawer->setPointSize(4);
 
 
   last_time = SDL_GetTicks();
@@ -78,34 +77,40 @@ void plotxyz(NumericVector x, NumericVector y, NumericVector z, IntegerVector r,
         case SDLK_ESCAPE:
           run = false;
           break;
-        case SDLK_d:
-          drawer->setAttribute(Attribute::Distance);
-          drawer->camera.changed = true;
-          break;
         case SDLK_z:
           drawer->setAttribute(Attribute::Z);
           drawer->camera.changed = true;
           break;
-        case SDLK_f:
-          drawer->setAttribute(Attribute::Ratio);
+        case SDLK_i:
+          drawer->setAttribute(Attribute::I);
+          drawer->camera.changed = true;
+          break;
+        case SDLK_c:
+          drawer->setAttribute(Attribute::CLASS);
+          drawer->camera.changed = true;
+          break;
+        case SDLK_r:
+        case SDLK_g:
+        case SDLK_b:
+          drawer->setAttribute(Attribute::RGB);
           drawer->camera.changed = true;
           break;
         case SDLK_q:
           drawer->display_hide_spataial_index();
           drawer->camera.changed = true;
           break;
-        case SDLK_p:
-          postprod = !postprod;
+        case SDLK_l:
+          drawer->lightning = !drawer->lightning;
           drawer->camera.changed = true;
           break;
         case SDLK_PLUS:
         case SDLK_KP_PLUS:
-          drawer->size++;
+          drawer->point_size++;
           drawer->camera.changed = true;
           break;
         case SDLK_MINUS:
         case SDLK_KP_MINUS:
-          drawer->size--;
+          drawer->point_size--;
           drawer->camera.changed = true;
           break;
         default:
