@@ -138,7 +138,7 @@ Drawer::Drawer(SDL_Window *window, DataFrame df)
 
   auto end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> duration = end - start;
-  printf("Indexation: %.1lf seconds (%.1lfM pts/s)\n", duration.count(), x.size()/duration.count()/1000000);
+  //printf("Indexation: %.1lf seconds (%.1lfM pts/s)\n", duration.count(), x.size()/duration.count()/1000000);
 
   this->point_budget *= 10;
   camera.changed = true;
@@ -340,11 +340,11 @@ bool Drawer::draw()
   std::chrono::duration<double> query_duration = end_query - start_query;
   std::chrono::duration<double> rendering_duration = end_rendering - start_rendering;
 
-  printf("Displayed %dk/%ldk points (%.1f\%)\n", (int)pp.size()/1000, x.size()/1000, (double)pp.size()/(double)x.size()*100);
+  /*printf("Displayed %dk/%ldk points (%.1f\%)\n", (int)pp.size()/1000, x.size()/1000, (double)pp.size()/(double)x.size()*100);
   printf("Full Rendering: %.3f seconds (%.1f fps)\n", total_duration.count(), 1.0f/total_duration.count());
   printf("Cloud rendering: %.3f seconds (%.1f fps, %.1f\%)\n", rendering_duration.count(), 1.0f/rendering_duration.count(), rendering_duration.count()/total_duration.count()*100);
   printf("Spatial query: %.3f seconds (%.1f fps %.1f\%)\n", query_duration.count(), 1.0f/query_duration.count(), query_duration.count()/total_duration.count()*100);
-  printf("\n");
+  printf("\n");*/
 
   glFlush();
   SDL_GL_SwapWindow(window);

@@ -1,31 +1,42 @@
 #' Display big 3D point clouds
 #'
-#' Display aritrary large in memory 3D point clouds. This function does no lag and can display
-#' almost instantly millions of points. It is optimized to used the lowest possible memory
-#' and is capable of displaying gigabytes of points allocating only few megabyte of memory
+#' Display arbitrary large in memory 3D point clouds from the lidR package. Keyboard can be use
+#' to control the rendering
+#' - Rotate with left mouse button
+#' - Zoom with mouse wheel
+#' - Pan with right mouse button
+#' - Keyboard <kbd>r</kbd> or <kbd>g</kbd> or <kbd>b</kbd> to color with RGB
+#' - Keyboard <kbd>z</kbd> to color with Z
+#' - Keyboard <kbd>i</kbd> to color with Intensity
+#' - Keyboard <kbd>c</kbd> to color with Classification
+#' - Keyboard <kbd>+</kbd> or <kbd>-</kbd> to change the point size
+#' - Keyboard <kbd>l</kbd> to enable/disable eyes-dome lightning
 #'
-#' @param x A \code{LAS*} object from the lidR package
+#' @param x a point cloud with minimally 3 columns named X,Y,Z
 #' @param y Unused (inherited from R base)
 #' @export
 #' @method plot LAS
 #' @importClassesFrom lidR LAS
 #' @useDynLib lidRviewer, .registration = TRUE
 #' @importFrom Rcpp evalCpp
-setGeneric("plot", function(x, y, ...) standardGeneric("plot"))
-
-#' @rdname plot
+#' @md
 setMethod("plot", signature(x = "LAS", y = "missing"), function(x, y, ...)
 {
-  plot.LAS(x, y, ...)
+  viewer(x@data)
 })
 
-plot.LAS <- function(x, y, ...)
-{
-  viewer(x@data)
-}
-
-#' @aliases plot
 #' @rdname plot
+setMethod("plot", signature(x = "data.frame", y = "missing"), function(x, y, ...)
+{
+  viewer(x)
+})
+
+#' Deprecated backward compatible function
+#'
+#' @param x,y,z numeric vector
+#' @param r,g,b integer vector
+#' @param id index
+#' @param size not used
 #' @export
 plot_xyzrgb <- function(x, y, z, r, g, b, id = NULL, size = 4)
 {
