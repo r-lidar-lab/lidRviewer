@@ -1,31 +1,24 @@
 #include "drawer.h"
 
-#define FPS 30
-#define WW 600
-#define WH 600
+const float zNear = 1;
+const float zFar = 100000;
+const Uint32 time_per_frame = 1000 / 30;
 
 // [[Rcpp::export]]
 void lidRviewer(DataFrame df)
 {
-  const float zNear = 1;
-  const float zFar = 100000;
   bool run = true;
 
   SDL_Event event;
-  const Uint32 time_per_frame = 1000 / FPS;
-  unsigned int width = WW;
-  unsigned int height = WH;
+
+  unsigned int width = 600;
+  unsigned int height = 600;
 
   Uint32 last_time, current_time, elapsed_time;
 
   SDL_Init(SDL_INIT_VIDEO);
-
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-  SDL_Window *window = SDL_CreateWindow("lidRviewer",
-                                        SDL_WINDOWPOS_CENTERED,
-                                        SDL_WINDOWPOS_CENTERED,
-                                        width, height,
-                                        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+  SDL_Window *window = SDL_CreateWindow("lidRviewer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
   SDL_GLContext glContext = SDL_GL_CreateContext(window);
   SDL_GL_SetSwapInterval(1); // Enable VSync
@@ -38,21 +31,18 @@ void lidRviewer(DataFrame df)
   glDepthFunc(GL_LEQUAL);               // Set the type of depth-test
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // Nice perspective corrections
 
-  // Round point
-  glEnable(GL_POINT_SMOOTH);
 
-  // Enable line anti-aliasing
-  glEnable(GL_LINE_SMOOTH);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_POINT_SMOOTH);   // Round point
+
+  glEnable(GL_LINE_SMOOTH);   // Enable line anti-aliasing
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
   glEnable(GL_MULTISAMPLE);
   glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
 
-  glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+  glEnable(GL_VERTEX_PROGRAM_POINT_SIZE); // Enable changing the point size
 
-
-  Drawer *drawer = new Drawer(df);
+  Drawer *drawer = new Drawer(window, df);
   drawer->camera.setRotateSensivity(0.1);
   drawer->camera.setZoomSensivity(10);
   drawer->camera.setPanSensivity(1);
@@ -79,39 +69,31 @@ void lidRviewer(DataFrame df)
           break;
         case SDLK_z:
           drawer->setAttribute(Attribute::Z);
-          drawer->camera.changed = true;
           break;
         case SDLK_i:
           drawer->setAttribute(Attribute::I);
-          drawer->camera.changed = true;
           break;
         case SDLK_c:
           drawer->setAttribute(Attribute::CLASS);
-          drawer->camera.changed = true;
           break;
         case SDLK_r:
         case SDLK_g:
         case SDLK_b:
           drawer->setAttribute(Attribute::RGB);
-          drawer->camera.changed = true;
           break;
         case SDLK_q:
-          drawer->display_hide_spataial_index();
-          drawer->camera.changed = true;
+          drawer->display_hide_spatial_index();
           break;
         case SDLK_l:
-          drawer->lightning = !drawer->lightning;
-          drawer->camera.changed = true;
+          drawer->display_hide_edl();
           break;
         case SDLK_PLUS:
         case SDLK_KP_PLUS:
-          drawer->point_size++;
-          drawer->camera.changed = true;
+          drawer->point_size_plus();
           break;
         case SDLK_MINUS:
         case SDLK_KP_MINUS:
-          drawer->point_size--;
-          drawer->camera.changed = true;
+          drawer->point_size_minus();
           break;
         default:
           drawer->camera.OnKeyboard(event.key);
@@ -152,14 +134,7 @@ void lidRviewer(DataFrame df)
 
     if (elapsed_time > time_per_frame)
     {
-      if (drawer->draw())
-      {
-        glShadeModel(GL_SMOOTH);
-
-        glFlush();
-        SDL_GL_SwapWindow(window);
-      }
-
+      drawer->draw();
       last_time = current_time;
     }
     else
@@ -174,5 +149,3 @@ void lidRviewer(DataFrame df)
   SDL_Quit();
   return;
 }
-
-

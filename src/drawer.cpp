@@ -2,6 +2,7 @@
 #include "PSquare.h"
 
 #include <chrono>
+#include <random>
 
 const std::vector<std::array<unsigned char, 3>> zgradient = {
   {0, 0, 255},
@@ -81,8 +82,10 @@ const std::vector<std::array<unsigned char, 3>> igradient = {
   {255, 255, 234}   // [25]
 };
 
-Drawer::Drawer(DataFrame df)
+Drawer::Drawer(SDL_Window *window, DataFrame df)
 {
+  this->window = window;
+
   this->df = df;
   this->x = df["X"];
   this->y = df["Y"];
@@ -104,10 +107,8 @@ Drawer::Drawer(DataFrame df)
   this->zrange = maxz-minz;
   this->range = std::max(xrange, yrange);
 
-  this->index = EPToctree(&x[0], &y[0], &z[0], x.size());
-
   this->draw_index = false;
-  this->point_budget = 3000000;
+  this->point_budget = 300000;
   this->point_size = 5.0;
   this->lightning = true;
 
@@ -118,7 +119,30 @@ Drawer::Drawer(DataFrame df)
   this->camera.setPanSensivity(distance*0.001);
   this->camera.setZoomSensivity(distance*0.05);
 
+  setAttribute(Attribute::Z);
   setAttribute(Attribute::RGB);
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+  this->index = EPToctree(&x[0], &y[0], &z[0], x.size());
+
+  for (size_t i = 0 ; i < x.size() ; i++)
+  {
+    index.insert(i);
+    if (i % 1000000 == 0)
+    {
+      camera.changed = true;
+      draw();
+    }
+  }
+
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> duration = end - start;
+  printf("Indexation: %.1lf seconds (%.1lfM pts/s)\n", duration.count(), x.size()/duration.count()/1000000);
+
+  this->point_budget *= 10;
+  camera.changed = true;
+  draw();
 }
 
 void Drawer::setAttribute(Attribute x)
@@ -129,11 +153,24 @@ void Drawer::setAttribute(Attribute x)
     this->r = df["R"];
     this->g = df["G"];
     this->b = df["B"];
+    camera.changed = true;
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, r.size() - 1);
+
+    rgb_norm = 1;
+    for (int i = 0; i < std::min((int)r.size(), 100); ++i)
+    {
+      int index = dis(gen);
+      if (r[index] > 255) rgb_norm = 255;
+    }
   }
   else if (x == Attribute::CLASS && df.containsElementNamed("Classification"))
   {
     this->attr = x;
     this->attri = df["Classification"];
+    camera.changed = true;
   }
   else if (x == Attribute::I && df.containsElementNamed("Intensity"))
   {
@@ -144,6 +181,7 @@ void Drawer::setAttribute(Attribute x)
     this->minattr = minz;
     this->maxattr = p99.getQuantile();
     this->attrrange = maxattr - minattr;
+    camera.changed = true;
   }
   else
   {
@@ -153,6 +191,7 @@ void Drawer::setAttribute(Attribute x)
     this->minattr = minz;
     this->maxattr = p99.getQuantile();
     this->attrrange = maxattr - minattr;
+    camera.changed = true;
   }
 }
 
@@ -198,7 +237,7 @@ bool Drawer::draw()
       }
       case Attribute::RGB:
       {
-        glColor3ub(r[i]/255, g[i]/255, b[i]/255);
+        glColor3ub(r[i]/rgb_norm, g[i]/rgb_norm, b[i]/rgb_norm);
         break;
       }
       case Attribute::CLASS:
@@ -306,6 +345,9 @@ bool Drawer::draw()
   printf("Cloud rendering: %.3f seconds (%.1f fps, %.1f\%)\n", rendering_duration.count(), 1.0f/rendering_duration.count(), rendering_duration.count()/total_duration.count()*100);
   printf("Spatial query: %.3f seconds (%.1f fps %.1f\%)\n", query_duration.count(), 1.0f/query_duration.count(), query_duration.count()/total_duration.count()*100);
   printf("\n");
+
+  glFlush();
+  SDL_GL_SwapWindow(window);
 
   return true;
 }

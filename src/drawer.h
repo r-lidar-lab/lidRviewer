@@ -25,11 +25,14 @@ struct RenderedPoint
 class Drawer
 {
 public:
-  Drawer(DataFrame);
+  Drawer(SDL_Window*, DataFrame);
   bool draw();
   void setPointSize(float);
   void setAttribute(Attribute x);
-  void display_hide_spataial_index() { draw_index = !draw_index; };
+  void display_hide_spatial_index() { draw_index = !draw_index; camera.changed = true; };
+  void display_hide_edl() { lightning = !lightning; camera.changed = true; };
+  void point_size_plus() { point_size++; camera.changed = true; };
+  void point_size_minus() { point_size--; camera.changed = true; };
   Camera camera;
   EPToctree index;
 
@@ -46,6 +49,7 @@ private:
   bool draw_index;
   int npoints;
   int point_budget;
+  int rgb_norm;
 
   double minx;
   double miny;
@@ -78,6 +82,8 @@ private:
   Attribute attr;
   std::vector<int> pp;
   std::vector<EPToctant*> visible_octants;
+
+  SDL_Window *window;
 };
 
 #endif //DRAWER_H

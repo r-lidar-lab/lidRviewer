@@ -54,8 +54,6 @@ void EPToctant::insert(size_t idx, int cell)
 
 EPToctree::EPToctree(double* x, double* y, double* z, size_t n)
 {
-  auto start = std::chrono::high_resolution_clock::now();
-
   this->npoint = n;
   this->x = x;
   this->y = y;
@@ -95,15 +93,6 @@ EPToctree::EPToctree(double* x, double* y, double* z, size_t n)
   zmax = center_z + halfsize;
 
   compute_max_depth(n, 10000);
-
-  for (size_t i = 0 ; i < n ; i++)
-  {
-    insert(i);
-  }
-
-  auto end = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> duration = end - start;
-  printf("Indexation: %.1lf seconds (%.1lfM pts/s)\n", duration.count(), n/duration.count()/1000000);
 }
 
 void EPToctree::compute_max_depth(size_t npts, size_t max_points_per_octant)
