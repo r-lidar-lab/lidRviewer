@@ -6,14 +6,16 @@ This is a point cloud viewer for R. The primary goal of this package is to serve
 
 While `rgl` is a powerful package, it has some limitations when it comes to handling large point clouds. The `lidRviewer` package is designed to efficiently display arbitrarily large in-memory point clouds, with tested cases including over 130 million points.
 
-## Advantages of `lidRviewer`:
+![](man/figures/autzen-screen.jpg)
+
+### Advantages of `lidRviewer`:
 
 * Capable of handling hundred millions of points efficiently if they fits in memory, unlike `rgl`, which may struggle with a few million.
 * More memory efficient: it requires only a small amount of additional memory, whereas `rgl` may need gigabytes to store a full copy of the point cloud.
 * Provides keyboard controls for changing coloring attributes and point size on-the-fly.
 * Features eyes-dome lighting for better visualization.
 
-## Drawbacks:
+### Drawbacks:
 
 * Blocks the R session: while the viewer window is open, you cannot use R for other tasks. You must close the viewer window to resume normal R usage.
 * Limited functionality: only displays point clouds and does not offer additional features. It is not intended to replace `rgl` for other visualization needs and custom rendering.
