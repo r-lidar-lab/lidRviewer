@@ -2,6 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 lidRviewer <- function(df) {
-    invisible(.Call(`_lidRviewer_lidRviewer`, df))
+    invisible(.Call('_lidRviewer_lidRviewer', PACKAGE = 'lidRviewer', df))
 }
 

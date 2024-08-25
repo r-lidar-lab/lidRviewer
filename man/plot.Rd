@@ -3,7 +3,6 @@
 \name{plot}
 \alias{plot}
 \alias{plot,LAS,missing-method}
-\alias{plot.LAS}
 \alias{plot_xyzrgb}
 \title{Display big 3D point clouds}
 \usage{
@@ -11,47 +10,15 @@ plot(x, y, ...)
 
 \S4method{plot}{LAS,missing}(x, y, ...)
 
-plot.LAS(las)
-
 plot_xyzrgb(x, y, z, r, g, b, id = NULL, size = 4)
 }
 \arguments{
-\item{x}{numeric vector of x coordinates}
+\item{x}{A \code{LAS*} object from the lidR package}
 
-\item{y}{numeric vector of y coordinates}
-
-\item{z}{numeric vector of z coordinates}
-
-\item{r}{integer vector of red components}
-
-\item{g}{integer vector of green components}
-
-\item{b}{integer vector of blue components}
-
-\item{id}{integer vector. Memory optimization. Instead of storing 3 vectors of integer
-and potentially storing duplicated entries it is possible to provide a short list of colors
-and refer to these color using a single set of integer used as id to the color.}
-
-\item{size}{the size of the points}
-
-\item{col}{character vector of hexadecimal colors.}
+\item{y}{Unused (inherited from R base)}
 }
 \description{
-Display big 3D point clouds using rgl style. This function does no lag and can display
+Display aritrary large in memory 3D point clouds. This function does no lag and can display
 almost instantly millions of points. It is optimized to used the lowest possible memory
 and is capable of displaying gigabytes of points allocating only few megabyte of memory
-
-Display big 3D point clouds using rgl style. This function does no lag and can display
-almost instantly millions of points. It is optimized to used the lowest possible memory
-and is capable of displaying gigabytes of points allocating only few megabyte of memory
-}
-\examples{
-\dontrun{
-x = runif(1000, 0, 100)
-y = runif(1000, 0, 100)
-z = runif(1000, 0, 100)
-col = rainbow(10)
-id = sample(1:10, 1000, replace = TRUE)
-plot_xyzcol(x, y, z, col, id)
-}
 }

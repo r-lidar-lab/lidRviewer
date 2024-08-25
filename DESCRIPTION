@@ -8,7 +8,7 @@ Description: A simple point cloud viewer for R which enable to display million o
   points in a fluid way and using few memory. This package aims to replace rgl 
   in lidR when the point cloud is to big to be held by rgl. 
 Depends: R (>= 3.1.0)
-Imports: Rcpp,grDevices,lidR
+Imports: Rcpp,lidR
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
