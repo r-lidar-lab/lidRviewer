@@ -37,10 +37,10 @@ void viewer(DataFrame df)
   glEnable(GL_LINE_SMOOTH);   // Enable line anti-aliasing
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-  glEnable(GL_MULTISAMPLE);
-  glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
+  //glEnable(GL_MULTISAMPLE);
+  //glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
 
-  glEnable(GL_VERTEX_PROGRAM_POINT_SIZE); // Enable changing the point size
+  //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE); // Enable changing the point size
 
   Drawer *drawer = new Drawer(window, df);
   drawer->camera.setRotateSensivity(0.1);
