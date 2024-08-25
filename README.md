@@ -17,8 +17,8 @@ While `rgl` is a powerful package, it has some limitations when it comes to hand
 
 ### Drawbacks:
 
-* Blocks the R session: while the viewer window is open, you cannot use R for other tasks. You must close the viewer window to resume normal R usage.
 * Limited functionality: only displays point clouds and does not offer additional features. It is not intended to replace `rgl` for other visualization needs and custom rendering.
+* Limited to only one windows and thus one rendering.
 
 ## Installation
 
