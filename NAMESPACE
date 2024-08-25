@@ -3,3 +3,5 @@
 export(plot)
 export(plot_xyzrgb)
 importClassesFrom(lidR,LAS)
+importFrom(Rcpp,evalCpp)
+useDynLib(lidRviewer, .registration = TRUE)

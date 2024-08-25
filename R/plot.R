@@ -9,6 +9,8 @@
 #' @export
 #' @method plot LAS
 #' @importClassesFrom lidR LAS
+#' @useDynLib lidRviewer, .registration = TRUE
+#' @importFrom Rcpp evalCpp
 setGeneric("plot", function(x, y, ...) standardGeneric("plot"))
 
 #' @rdname plot
@@ -19,7 +21,7 @@ setMethod("plot", signature(x = "LAS", y = "missing"), function(x, y, ...)
 
 plot.LAS <- function(x, y, ...)
 {
-  lidRviewer(x@data)
+  viewer(x@data)
 }
 
 #' @aliases plot
@@ -77,5 +79,5 @@ plot_xyzrgb <- function(x, y, z, r, g, b, id = NULL, size = 4)
   message("Point cloud viewer must be closed before to run other R code")
 
   df = data.frame(X = x, Y = y, Z = z, R = r, G = g, B = b)
-  lidRviewer(df)
+  viewer(df)
 }

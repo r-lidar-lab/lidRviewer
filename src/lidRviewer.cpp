@@ -5,7 +5,7 @@ const float zFar = 100000;
 const Uint32 time_per_frame = 1000 / 30;
 
 // [[Rcpp::export]]
-void lidRviewer(DataFrame df)
+void viewer(DataFrame df)
 {
   bool run = true;
 
