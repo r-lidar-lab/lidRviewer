@@ -10,6 +10,8 @@
 \item{x}{a point cloud with minimally 3 columns named X,Y,Z}
 
 \item{y}{Unused (inherited from R base)}
+
+\item{...}{unused}
 }
 \description{
 Display arbitrary large in memory 3D point clouds from the lidR package. Keyboard can be use

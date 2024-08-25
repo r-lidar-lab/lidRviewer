@@ -14,6 +14,7 @@
 #'
 #' @param x a point cloud with minimally 3 columns named X,Y,Z
 #' @param y Unused (inherited from R base)
+#' @param ... unused
 #' @export
 #' @method plot LAS
 #' @importClassesFrom lidR LAS
@@ -23,12 +24,6 @@
 setMethod("plot", signature(x = "LAS", y = "missing"), function(x, y, ...)
 {
   viewer(x@data)
-})
-
-#' @rdname plot
-setMethod("plot", signature(x = "data.frame", y = "missing"), function(x, y, ...)
-{
-  viewer(x)
 })
 
 #' Deprecated backward compatible function
