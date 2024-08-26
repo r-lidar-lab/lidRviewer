@@ -64,6 +64,8 @@ private:
   double yrange;
   double zrange;
   double range;
+  double zqmin;
+  double zqmax;
   double minattr;
   double maxattr;
   double attrrange;

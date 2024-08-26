@@ -93,12 +93,23 @@ Drawer::Drawer(SDL_Window *window, DataFrame df)
 
   this->npoints = x.length();
 
-  this->minx = min(x);
-  this->miny = min(y);
-  this->minz = min(z);
-  this->maxx = max(x);
-  this->maxy = max(y);
-  this->maxz = max(z);
+  PSquare zp99(0.99);
+  this->minx = this->maxx = x[0];
+  this->miny = this->maxy = y[0];
+  this->minz = this->maxz = z[0];
+  for (int i = 1; i < this->npoints; ++i)
+  {
+    if (x[i] < this->minx) this->minx = x[i];
+    if (x[i] > this->maxx) this->maxx = x[i];
+
+    if (y[i] < this->miny) this->miny = y[i];
+    if (y[i] > this->maxy) this->maxy = y[i];
+
+    if (z[i] < this->minz) this->minz = z[i];
+    if (z[i] > this->maxz) this->maxz = z[i];
+
+    zp99.addDataPoint(z[i]);
+  }
   this->xcenter = (maxx+minx)/2;
   this->ycenter = (maxy+miny)/2;
   this->zcenter = (maxz+minz)/2;
@@ -106,6 +117,8 @@ Drawer::Drawer(SDL_Window *window, DataFrame df)
   this->yrange = maxy-miny;
   this->zrange = maxz-minz;
   this->range = std::max(xrange, yrange);
+  this->zqmin = minz;
+  this->zqmax = zp99.getQuantile();
 
   this->draw_index = false;
   this->point_budget = 300000;
@@ -185,11 +198,9 @@ void Drawer::setAttribute(Attribute x)
   }
   else
   {
-    PSquare p99(0.99);
-    for (const auto& pz : z) p99.addDataPoint(pz);
     this->attr = Attribute::Z;
-    this->minattr = minz;
-    this->maxattr = p99.getQuantile();
+    this->minattr = zqmin;
+    this->maxattr = zqmax;
     this->attrrange = maxattr - minattr;
     camera.changed = true;
   }
