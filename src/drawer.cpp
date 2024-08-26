@@ -467,7 +467,7 @@ void Drawer::traverse_and_collect(const EPTkey& key, std::vector<EPToctant*>& vi
   int screenWidth = viewport[2];
   int screenHeight = viewport[3];
 
-  float fov = 45;
+  float fov = 70*M_PI/180;
   float slope = std::tan(fov/2.0f);
 
   double cx = camera.x;
