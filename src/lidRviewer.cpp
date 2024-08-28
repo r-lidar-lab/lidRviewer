@@ -56,6 +56,9 @@ void sdl_loop(DataFrame df, std::string hnof)
   glEnable(GL_LINE_SMOOTH);
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
   Drawer *drawer = new Drawer(window, df, hnof);
   drawer->camera.setRotateSensivity(0.1);
   drawer->camera.setZoomSensivity(10);
@@ -135,7 +138,9 @@ void sdl_loop(DataFrame df, std::string hnof)
           glViewport(0, 0, width, height);
           glMatrixMode(GL_PROJECTION);
           glLoadIdentity();
-          gluPerspective(70, (double)width / height, zNear, zFar);
+          gluPerspective(70, (float)width / (float)height, zNear, zFar);
+          glMatrixMode(GL_MODELVIEW);
+          glLoadIdentity();
           drawer->camera.changed = true;
         }
         break;
@@ -180,8 +185,9 @@ void sdl_loop(DataFrame df, std::string hnof)
 void viewer(DataFrame df, std::string hnof)
 {
   if (running) Rcpp::stop("lidRviewer is limited to one rendering point cloud");
-  sdl_thread = std::thread(sdl_loop, df, hnof);
-  sdl_thread.detach();  // Detach the thread to allow it to run independently
+  sdl_loop(df, hnof);
+  //sdl_thread = std::thread(sdl_loop, df, hnof);
+  //sdl_thread.detach();  // Detach the thread to allow it to run independently
 
   running = true;
 }
