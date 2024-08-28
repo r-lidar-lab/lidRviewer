@@ -23,8 +23,19 @@
 #' @md
 setMethod("plot", signature(x = "LAS", y = "missing"), function(x, y, ...)
 {
-  viewer(x@data)
+  viewer(x@data, "")
 })
+
+render = function(f)
+{
+  x = normalizePath(x)
+  las = lidR::readLAS(x)
+  hnof = paste0(substr(x, 1, nchar(x) - 3), "hno")
+  f = if (file.exists(hnof)) hnof else x
+  print(f)
+  viewer(las@data, f)
+}
+
 
 #' Deprecated backward compatible function
 #'

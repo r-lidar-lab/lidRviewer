@@ -3,7 +3,7 @@ Type: Package
 Title: 3D point cloud viewer
 Version: 1.0.0
 Author: Jean-Romain Roussel [aut,cre,cph]
-Maintainer: Jean-Romain Roussel <info@r-lidar,com>
+Maintainer: Jean-Romain Roussel <info@r-lidar.com>
 Description: An advanced point cloud viewer designed to fluidly display hundreds of millions of 
   points while using minimal memory. This package is intended as a replacement for rgl in lidR 
   when the point cloud size exceeds what rgl can handle.

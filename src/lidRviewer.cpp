@@ -17,7 +17,7 @@ bool running = false;
 
 std::thread sdl_thread;
 
-void sdl_loop(DataFrame df)
+void sdl_loop(DataFrame df, std::string hnof)
 {
   SDL_Event event;
 
@@ -56,7 +56,7 @@ void sdl_loop(DataFrame df)
   glEnable(GL_LINE_SMOOTH);
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-  Drawer *drawer = new Drawer(window, df);
+  Drawer *drawer = new Drawer(window, df, hnof);
   drawer->camera.setRotateSensivity(0.1);
   drawer->camera.setZoomSensivity(10);
   drawer->camera.setPanSensivity(1);
@@ -177,11 +177,10 @@ void sdl_loop(DataFrame df)
 }
 
 // [[Rcpp::export]]
-void viewer(DataFrame df)
+void viewer(DataFrame df, std::string hnof)
 {
   if (running) Rcpp::stop("lidRviewer is limited to one rendering point cloud");
-
-  sdl_thread = std::thread(sdl_loop, df);
+  sdl_thread = std::thread(sdl_loop, df, hnof);
   sdl_thread.detach();  // Detach the thread to allow it to run independently
 
   running = true;

@@ -12,20 +12,10 @@ using namespace Rcpp;
 
 enum Attribute{Z, I, RGB, CLASS};
 
-struct RenderedPoint
-{
-  RenderedPoint() { memset(this, 0, sizeof(RenderedPoint)); };
-  void set_color(unsigned char r, unsigned char g, unsigned char b) { this->r = r; this->g = g; this->b = b; };
-  int pindex;
-  unsigned char r;
-  unsigned char g;
-  unsigned char b;
-};
-
 class Drawer
 {
 public:
-  Drawer(SDL_Window*, DataFrame);
+  Drawer(SDL_Window*, DataFrame, std::string hnof);
   bool draw();
   void setPointSize(float);
   void setAttribute(Attribute x);
@@ -34,20 +24,20 @@ public:
   void point_size_plus() { point_size++; camera.changed = true; };
   void point_size_minus() { point_size--; camera.changed = true; };
   Camera camera;
-  EPToctree index;
+  Octree index;
 
   float point_size;
   bool lightning;
 
 private:
   void eyes_dome_lightning();
-  bool is_visible(const EPToctant& octant);
+  bool is_visible(const Node& octant);
   void compute_cell_visibility();
   void query_rendered_point();
-  void traverse_and_collect(const EPTkey& key, std::vector<EPToctant*>& visible_octants);
+  void traverse_and_collect(const Key& key, std::vector<Node*>& visible_octants);
 
   bool draw_index;
-  int npoints;
+  uint32_t npoints;
   int point_budget;
   int rgb_norm;
 
@@ -83,7 +73,7 @@ private:
 
   Attribute attr;
   std::vector<int> pp;
-  std::vector<EPToctant*> visible_octants;
+  std::vector<Node*> visible_octants;
 
   SDL_Window *window;
 };

@@ -82,7 +82,7 @@ const std::vector<std::array<unsigned char, 3>> igradient = {
   {255, 255, 234}   // [25]
 };
 
-Drawer::Drawer(SDL_Window *window, DataFrame df)
+Drawer::Drawer(SDL_Window *window, DataFrame df, std::string hnof)
 {
   this->window = window;
 
@@ -137,16 +137,43 @@ Drawer::Drawer(SDL_Window *window, DataFrame df)
 
   auto start = std::chrono::high_resolution_clock::now();
 
-  this->index = EPToctree(&x[0], &y[0], &z[0], x.size());
-
-  for (size_t i = 0 ; i < x.size() ; i++)
-  {
-    index.insert(i);
-    if (i % 1000000 == 0)
-    {
-      camera.changed = true;
-      draw();
+  auto file_ext = [](const std::string& str, const std::string& suffix) -> bool {
+    if (str.length() >= suffix.length()) {
+      return (0 == str.compare(str.length() - suffix.length(), suffix.length(), suffix));
+    } else {
+      return false;
     }
+  };
+
+  bool use_hnof = !hnof.empty();
+  bool is_las = file_ext(hnof, ".las") || file_ext(hnof, ".laz");
+
+  if (!use_hnof || (use_hnof && is_las))
+  {
+    this->index = Octree(&x[0], &y[0], &z[0], x.size());
+
+    for (size_t i = 0 ; i < x.size() ; i++)
+    {
+      index.insert(i);
+      if (i % 1000000 == 0)
+      {
+        camera.changed = true;
+        draw();
+      }
+    }
+
+    if (is_las)
+    {
+      hnof = hnof.substr(0, hnof.size() - 3);
+      hnof = hnof + "hno";
+      index.write(hnof);
+    }
+  }
+  else
+  {
+    this->index.read(hnof);
+    if (index.get_npoints() != npoints)
+      throw std::runtime_error("Incompatible number of points between the data provided and the octree read from file.");
   }
 
   auto end = std::chrono::high_resolution_clock::now();
@@ -439,7 +466,7 @@ void Drawer::eyes_dome_lightning()
   glDrawPixels(w, h, GL_RGB, GL_UNSIGNED_BYTE, colorBuffer.data());
 }
 
-bool Drawer::is_visible(const EPToctant& octant)
+bool Drawer::is_visible(const Node& octant)
 {
   return camera.see(octant.bbox[0]-xcenter, octant.bbox[1]-ycenter, octant.bbox[2]-zcenter, octant.bbox[3]);
 }
@@ -448,16 +475,16 @@ void Drawer::compute_cell_visibility()
 {
   visible_octants.clear();
 
-  EPTkey root = EPTkey::root();
+  Key root = Key::root();
   traverse_and_collect(root, visible_octants);
 
-  std::sort(visible_octants.begin(), visible_octants.end(), [](const EPToctant* a, const EPToctant* b)
+  std::sort(visible_octants.begin(), visible_octants.end(), [](const Node* a, const Node* b)
   {
     return a->screen_size > b->screen_size;  // Sort in descending order
   });
 }
 
-void Drawer::traverse_and_collect(const EPTkey& key, std::vector<EPToctant*>& visible_octants)
+void Drawer::traverse_and_collect(const Key& key, std::vector<Node*>& visible_octants)
 {
   auto it = index.registry.find(key);
   if (it == index.registry.end()) return;
@@ -474,7 +501,7 @@ void Drawer::traverse_and_collect(const EPTkey& key, std::vector<EPToctant*>& vi
   double cy = camera.y;
   double cz = camera.z;
 
-  EPToctant& octant = it->second;
+  Node& octant = it->second;
 
   // Check if the current octant is visible
   if (is_visible(octant))
@@ -493,8 +520,8 @@ void Drawer::traverse_and_collect(const EPTkey& key, std::vector<EPToctant*>& vi
       visible_octants.push_back(&octant);
 
       // Recurse into children
-      std::array<EPTkey, 8> children_keys = key.get_children();
-      for (const EPTkey& child_key  : children_keys)
+      std::array<Key, 8> children_keys = key.get_children();
+      for (const Key& child_key  : children_keys)
       {
         traverse_and_collect(child_key, visible_octants);
       }
