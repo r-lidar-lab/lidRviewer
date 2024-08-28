@@ -1,6 +1,5 @@
 #include "sdlglutils.h"
-#include <SDL2/SDL.h>
-#include <GL/glu.h>
+
 #include <cstring>
 #include <cstdlib>
 

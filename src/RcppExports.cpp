@@ -11,19 +11,20 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // viewer
-void viewer(DataFrame df, std::string hnof);
-RcppExport SEXP _lidRviewer_viewer(SEXP dfSEXP, SEXP hnofSEXP) {
+void viewer(DataFrame df, bool detach, std::string hnof);
+RcppExport SEXP _lidRviewer_viewer(SEXP dfSEXP, SEXP detachSEXP, SEXP hnofSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< DataFrame >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< bool >::type detach(detachSEXP);
     Rcpp::traits::input_parameter< std::string >::type hnof(hnofSEXP);
-    viewer(df, hnof);
+    viewer(df, detach, hnof);
     return R_NilValue;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_lidRviewer_viewer", (DL_FUNC) &_lidRviewer_viewer, 2},
+    {"_lidRviewer_viewer", (DL_FUNC) &_lidRviewer_viewer, 3},
     {NULL, NULL, 0}
 };
 

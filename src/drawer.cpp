@@ -91,25 +91,7 @@ Drawer::Drawer(SDL_Window *window, DataFrame df, std::string hnof)
   zFar = 100000;
   fov = 70;
 
-  SDL_GetWindowSize(window, &width, &height);
-
-  glViewport(0, 0, width, height);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  gluPerspective(fov, (float)width/(float)height, zNear, zFar);
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-  glEnable(GL_POINT_SMOOTH);
-  glEnable(GL_LINE_SMOOTH);
-  glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  init_viewport();
 
   this->window = window;
 
@@ -210,6 +192,29 @@ Drawer::Drawer(SDL_Window *window, DataFrame df, std::string hnof)
   this->point_budget *= 10;
   camera.changed = true;
   draw();
+}
+
+void Drawer::init_viewport()
+{
+  SDL_GetWindowSize(window, &width, &height);
+
+  glViewport(0, 0, width, height);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(fov, (float)width/(float)height, zNear, zFar);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+  glEnable(GL_POINT_SMOOTH);
+  glEnable(GL_LINE_SMOOTH);
+  glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 }
 
 void Drawer::setAttribute(Attribute x)

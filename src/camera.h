@@ -2,18 +2,15 @@
 #define CAMERA_H
 
 #include "Frustum.h"
-#include <SDL2/SDL.h>
 
 class Camera
 {
   public:
     Camera();
-    ~Camera();
 
-    void OnMouseMotion(const SDL_MouseMotionEvent & event);
-    void OnMouseEvent(const SDL_MouseButtonEvent & event, const SDL_MouseWheelEvent & event_wheel);
-    void OnKeyboard(const SDL_KeyboardEvent & event);
-
+    void rotate(int xrel, int yrel);
+    void pan(int xrel, int yrel);
+    void zoom(int zrel);
     void look();
     void setRotateSensivity(double sensivity);
     void setPanSensivity(double sensivity);
@@ -36,11 +33,6 @@ class Camera
     double deltaX;
     double deltaY;
     double deltaZ;
-    bool holdleft;
-    bool holdright;
-    SDL_Cursor * _hand1;
-    SDL_Cursor * _hand2;
-    SDL_Cursor * _move;
 
 private:
     CFrustum frustum;

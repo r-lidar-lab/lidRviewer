@@ -2,6 +2,7 @@
 #define DRAWER_H
 
 #include <Rcpp.h>
+#include <SDL2/SDL.h>
 
 #include "Octree.h"
 #include "camera.h"
@@ -36,6 +37,7 @@ private:
   void compute_cell_visibility();
   void query_rendered_point();
   void traverse_and_collect(const Key& key, std::vector<Node*>& visible_octants);
+  void init_viewport();
 
   bool draw_index;
   uint32_t npoints;

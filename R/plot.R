@@ -14,7 +14,7 @@
 #'
 #' @param x a point cloud with minimally 3 columns named X,Y,Z
 #' @param y Unused (inherited from R base)
-#' @param ... unused
+#' @param ... Support detach = TRUE
 #' @export
 #' @method plot LAS
 #' @importClassesFrom lidR LAS
@@ -23,7 +23,9 @@
 #' @md
 setMethod("plot", signature(x = "LAS", y = "missing"), function(x, y, ...)
 {
-  viewer(x@data, "")
+  p = list(...)
+  detach = isTRUE(p$detach)
+  viewer(x@data, detach, "")
 })
 
 render = function(f)
@@ -32,8 +34,7 @@ render = function(f)
   las = lidR::readLAS(x)
   hnof = paste0(substr(x, 1, nchar(x) - 3), "hno")
   f = if (file.exists(hnof)) hnof else x
-  print(f)
-  viewer(las@data, f)
+  viewer(las@data, FALSE, f)
 }
 
 
