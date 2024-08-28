@@ -100,7 +100,7 @@ Octree::Octree(double* x, double* y, double* z, size_t n)
   compute_max_depth(n, 10000);
 }
 
-void Octree::compute_max_depth(uint64_t npts, size_t max_points_per_octant)
+void Octree::compute_max_depth(size_t npts, size_t max_points_per_octant)
 {
   // strategy to regulate the maximum depth of the octree
   double xsize = xmax-xmin;
