@@ -2,16 +2,11 @@
 
 #include <SDL2/SDL.h>
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-
 #include <thread>
 #include <atomic>
 
 #include "drawer.h"
 
-const float zNear = 1;
-const float zFar = 100000;
 const Uint32 time_per_frame = 1000 / 30;
 bool running = false;
 
@@ -44,21 +39,6 @@ void sdl_loop(DataFrame df, std::string hnof)
   SDL_GLContext glContext = SDL_GL_CreateContext(window);
   SDL_GL_SetSwapInterval(1); // Enable VSync
 
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  gluPerspective(70, (double)width / height, zNear, zFar);
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-  glEnable(GL_POINT_SMOOTH);
-  glEnable(GL_LINE_SMOOTH);
-  glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
   Drawer *drawer = new Drawer(window, df, hnof);
   drawer->camera.setRotateSensivity(0.1);
   drawer->camera.setZoomSensivity(10);
@@ -66,6 +46,8 @@ void sdl_loop(DataFrame df, std::string hnof)
   drawer->setPointSize(4);
 
   last_time = SDL_GetTicks();
+
+  bool ctrlPressed = false;
 
   while (run)
   {
@@ -76,10 +58,13 @@ void sdl_loop(DataFrame df, std::string hnof)
       case SDL_QUIT:
         run = false;
         break;
-
       case SDL_KEYDOWN:
         switch (event.key.keysym.sym)
         {
+        case SDLK_LCTRL:
+        case SDLK_RCTRL:
+          ctrlPressed = true;
+          break;
         case SDLK_ESCAPE:
           run = false;
           break;
@@ -116,33 +101,32 @@ void sdl_loop(DataFrame df, std::string hnof)
         break;
         }
         break;
-
+      case SDL_KEYUP:
+      {
+        switch (event.key.keysym.sym)
+        {
+        case SDLK_LCTRL:
+        case SDLK_RCTRL:
+          ctrlPressed = true;
+          break;
+        }
+      }
       case SDL_MOUSEMOTION:
         drawer->camera.OnMouseMotion(event.motion);
         break;
-
       case SDL_MOUSEBUTTONUP:
       case SDL_MOUSEBUTTONDOWN:
         drawer->camera.OnMouseEvent(event.button, SDL_MouseWheelEvent{}); // Pass an empty SDL_MouseWheelEvent
         break;
 
       case SDL_MOUSEWHEEL:
-        drawer->camera.OnMouseEvent(SDL_MouseButtonEvent{}, event.wheel); // Pass an empty SDL_MouseButtonEvent
+        if (ctrlPressed && event.wheel.y > 0) drawer->budget_plus();
+        else if (ctrlPressed && event.wheel.y < 0) drawer->budget_minus();
+        else drawer->camera.OnMouseEvent(SDL_MouseButtonEvent{}, event.wheel); // Pass an empty SDL_MouseButtonEvent
         break;
 
       case SDL_WINDOWEVENT:
-        if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-        {
-          width = event.window.data1;
-          height = event.window.data2;
-          glViewport(0, 0, width, height);
-          glMatrixMode(GL_PROJECTION);
-          glLoadIdentity();
-          gluPerspective(70, (float)width / (float)height, zNear, zFar);
-          glMatrixMode(GL_MODELVIEW);
-          glLoadIdentity();
-          drawer->camera.changed = true;
-        }
+        drawer->resize();
         break;
       }
     }

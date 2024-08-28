@@ -4,6 +4,9 @@
 #include <chrono>
 #include <random>
 
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 const std::vector<std::array<unsigned char, 3>> zgradient = {
   {0, 0, 255},
   {0, 29, 252},
@@ -84,6 +87,30 @@ const std::vector<std::array<unsigned char, 3>> igradient = {
 
 Drawer::Drawer(SDL_Window *window, DataFrame df, std::string hnof)
 {
+  zNear = 1;
+  zFar = 100000;
+  fov = 70;
+
+  SDL_GetWindowSize(window, &width, &height);
+
+  glViewport(0, 0, width, height);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(fov, (float)width/(float)height, zNear, zFar);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+  glEnable(GL_POINT_SMOOTH);
+  glEnable(GL_LINE_SMOOTH);
+  glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
   this->window = window;
 
   this->df = df;
@@ -300,10 +327,7 @@ bool Drawer::draw()
 
   glEnd();
 
-  if (lightning)
-  {
-    eyes_dome_lightning();
-  }
+  if (lightning) edl();
 
   if (draw_index)
   {
@@ -390,24 +414,19 @@ bool Drawer::draw()
   return true;
 }
 
-void Drawer::eyes_dome_lightning()
+void Drawer::edl()
 {
-  GLint viewport[4];
-  glGetIntegerv(GL_VIEWPORT, viewport);
-  int w = viewport[2];
-  int h = viewport[3];
+  std::vector< GLfloat > depth( width * height, 0 );
+  glReadPixels( 0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, &depth[0] );
 
-  std::vector< GLfloat > depth( w * h, 0 );
-  glReadPixels( 0, 0, w, h, GL_DEPTH_COMPONENT, GL_FLOAT, &depth[0] );
-
-  std::vector<GLubyte> colorBuffer(w * h * 3);
-  glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, &colorBuffer[0]);
+  std::vector<GLubyte> colorBuffer(width * height * 3);
+  glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, &colorBuffer[0]);
 
   const float zNear = 1;
   const float zFar = 10000;
 
-  std::vector<GLfloat> worldLogDistances(w * h);
-  for (int i = 0; i < w * h; ++i)
+  std::vector<GLfloat> worldLogDistances(width * height);
+  for (int i = 0; i < width * height; ++i)
   {
     GLfloat z = depth[i];           // Depth value from the depth buffer
     GLfloat zNDC = 2.0f * z - 1.0f; // Convert depth value to Normalized Device Coordinate (NDC)
@@ -431,11 +450,11 @@ void Drawer::eyes_dome_lightning()
 
   // Iterate over each pixel to shade the rendering
   float edlStrength = 10;
-  for (int y = 0; y < h; ++y)
+  for (int y = 0; y < height; ++y)
   {
-    for (int x = 0; x < w; ++x)
+    for (int x = 0; x < width; ++x)
     {
-      int idx = y * w + x;
+      int idx = y * width + x;
 
       // Find the maximum log depth among neighbors
       GLfloat maxLogDepth = std::max(0.0f, worldLogDistances[idx]);
@@ -446,9 +465,9 @@ void Drawer::eyes_dome_lightning()
       {
         int nx = x + offset.first;
         int ny = y + offset.second;
-        if (nx >= 0 && nx < w && ny >= 0 && ny < h)
+        if (nx >= 0 && nx < width && ny >= 0 && ny < height)
         {
-          int nIdx = ny * w + nx;
+          int nIdx = ny * width + nx;
           sum += maxLogDepth - worldLogDistances[nIdx];
         }
       }
@@ -463,7 +482,21 @@ void Drawer::eyes_dome_lightning()
     }
   }
 
-  glDrawPixels(w, h, GL_RGB, GL_UNSIGNED_BYTE, colorBuffer.data());
+  glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, colorBuffer.data());
+}
+
+void Drawer::resize()
+{
+  SDL_GetWindowSize(window, &width, &height);
+
+  glViewport(0, 0, width, height);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(fov, (float)width/(float)height, zNear, zFar);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+  camera.changed = true;
 }
 
 bool Drawer::is_visible(const Node& octant)

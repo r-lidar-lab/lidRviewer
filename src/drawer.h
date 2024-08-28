@@ -1,12 +1,10 @@
 #ifndef DRAWER_H
 #define DRAWER_H
 
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <Rcpp.h>
+
 #include "Octree.h"
 #include "camera.h"
-//#include "index.h"
 
 using namespace Rcpp;
 
@@ -17,12 +15,15 @@ class Drawer
 public:
   Drawer(SDL_Window*, DataFrame, std::string hnof);
   bool draw();
+  void resize();
   void setPointSize(float);
   void setAttribute(Attribute x);
   void display_hide_spatial_index() { draw_index = !draw_index; camera.changed = true; };
   void display_hide_edl() { lightning = !lightning; camera.changed = true; };
   void point_size_plus() { point_size++; camera.changed = true; };
   void point_size_minus() { point_size--; camera.changed = true; };
+  void budget_plus() { point_budget += 500000; camera.changed = true; };
+  void budget_minus() { if (point_budget > 500000) point_budget -= 500000; camera.changed = true; };
   Camera camera;
   Octree index;
 
@@ -30,7 +31,7 @@ public:
   bool lightning;
 
 private:
-  void eyes_dome_lightning();
+  void edl();
   bool is_visible(const Node& octant);
   void compute_cell_visibility();
   void query_rendered_point();
@@ -76,6 +77,11 @@ private:
   std::vector<Node*> visible_octants;
 
   SDL_Window *window;
+  float zNear;
+  float zFar;
+  float fov;
+  int width;
+  int height;
 };
 
 #endif //DRAWER_H
