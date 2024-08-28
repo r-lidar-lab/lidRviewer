@@ -424,6 +424,7 @@ void Drawer::edl()
 
   const float zNear = 1;
   const float zFar = 10000;
+  const float logzFar = std::log2(zFar);
 
   std::vector<GLfloat> worldLogDistances(width * height);
   for (int i = 0; i < width * height; ++i)
@@ -455,9 +456,12 @@ void Drawer::edl()
     for (int x = 0; x < width; ++x)
     {
       int idx = y * width + x;
+      float wld = worldLogDistances[idx];
+
+      if (wld == logzFar) { continue; }
 
       // Find the maximum log depth among neighbors
-      GLfloat maxLogDepth = std::max(0.0f, worldLogDistances[idx]);
+      GLfloat maxLogDepth = std::max(0.0f, wld);
 
       // Compute the response for the current pixel
       GLfloat sum = 0.0f;
