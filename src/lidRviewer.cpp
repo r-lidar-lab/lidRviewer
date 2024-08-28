@@ -185,10 +185,8 @@ void sdl_loop(DataFrame df, std::string hnof)
 void viewer(DataFrame df, std::string hnof)
 {
   if (running) Rcpp::stop("lidRviewer is limited to one rendering point cloud");
-  sdl_loop(df, hnof);
-  //sdl_thread = std::thread(sdl_loop, df, hnof);
-  //sdl_thread.detach();  // Detach the thread to allow it to run independently
-
+  sdl_thread = std::thread(sdl_loop, df, hnof);
+  sdl_thread.detach();  // Detach the thread to allow it to run independently
   running = true;
 }
 
