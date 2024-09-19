@@ -91,9 +91,9 @@ Drawer::Drawer(SDL_Window *window, DataFrame df, std::string hnof)
   zFar = 100000;
   fov = 70;
 
-  init_viewport();
-
   this->window = window;
+
+  init_viewport();
 
   this->df = df;
   this->x = df["X"];
