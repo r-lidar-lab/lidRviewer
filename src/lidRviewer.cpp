@@ -187,10 +187,12 @@ void sdl_loop(DataFrame df, std::string hnof)
               break;
             case SDLK_PLUS:
             case SDLK_KP_PLUS:
+            case SDLK_p:
               drawer->point_size_plus();
               break;
             case SDLK_MINUS:
             case SDLK_KP_MINUS:
+            case SDLK_m:
               drawer->point_size_minus();
               break;
             break;

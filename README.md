@@ -11,7 +11,7 @@ While `rgl` is a powerful package, it has some limitations when it comes to hand
 ### Advantages of `lidRviewer`:
 
 * Capable of handling hundred millions of points efficiently if they fits in memory, unlike `rgl`, which may struggle with a few million.
-* More memory efficient: it requires only a small amount of additional memory, whereas `rgl` may need gigabytes to store a full copy of the point cloud.
+* More memory efficient: it requires less additional memory than `rgl` that may require gigabytes to store a full copy of the point cloud.
 * Provides keyboard controls for changing coloring attributes and point size on-the-fly.
 * Features eyes-dome lighting for better visualization.
 
@@ -28,14 +28,13 @@ devtools::install_github("lidRviewer", repos = 'https://r-lidar.r-universe.dev')
 
 ## Usage
 
-Use `library(lidRviewer)` after `library(lidR)`to overide the default `rgl` plot function from `lidR`.
-
 ```r
 library(lidR)
 library(lidRviewer)
 LASfile <- system.file("extdata", "Megaplot.laz", package="lidR")
 las <- readLAS(LASfile)
-plot(las)
+view(las)
+# Close the view to continue working in your R session
 ```
 
 - Rotate with left mouse button

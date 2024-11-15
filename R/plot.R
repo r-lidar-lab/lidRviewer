@@ -13,20 +13,18 @@
 #' - Keyboard <kbd>l</kbd> to enable/disable eyes-dome lightning
 #'
 #' @param x a point cloud with minimally 3 columns named X,Y,Z
-#' @param y Unused (inherited from R base)
 #' @param ... Support detach = TRUE
 #' @export
-#' @method plot LAS
 #' @importClassesFrom lidR LAS
 #' @useDynLib lidRviewer, .registration = TRUE
 #' @importFrom Rcpp evalCpp
 #' @md
-setMethod("plot", signature(x = "LAS", y = "missing"), function(x, y, ...)
+view = function(x, ...)
 {
   p = list(...)
   detach = isTRUE(p$detach)
   viewer(x@data, detach, "")
-})
+}
 
 render = function(f)
 {
