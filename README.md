@@ -23,7 +23,27 @@ While `rgl` is a powerful package, it has some limitations when it comes to hand
 ## Installation
 
 ```r
+<<<<<<< HEAD
 devtools::install_github("lidRviewer", repos = 'https://r-lidar.r-universe.dev')
+=======
+devtools::install_github("r-lidar-lab/lidRviewer")
+```
+
+### Windows
+
+```r
+devtools::install_github("r-lidar-lab/lidRviewer")
+```
+
+### MacOS
+
+```
+brew install sdl2 mesa mesa-glu
+```
+
+```r
+devtools::install_github("r-lidar-lab/lidRviewer")
+>>>>>>> a35305216e432f906a9d5716f199be38622100d4
 ```
 
 ## Usage
